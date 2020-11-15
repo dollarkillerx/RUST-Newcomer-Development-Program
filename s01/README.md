@@ -15,3 +15,4 @@
 - s01_9 cargo package & 可见性 
     - hello cargo package lib`cargo new --lib hello`  // 创建依赖
 - s01_10 super & self
+- s01_11 作用域规则

@@ -42,5 +42,7 @@ fn main() {
 
     hello::hello_world();
 
-    path::middleware::path();
+    path::middleware::path();  // 2015  mod.rs 版本
+
+    hps::scp::hello();  // 2018 版本
 }
