@@ -8,3 +8,10 @@
 - s01_5 栈实现2
 - s01_6 类型
 - s01_7 流程控制
+- s01_8 闭包
+    - Fn：表示捕获方式为通过引用（&T）的闭包
+    - FnMut：表示捕获方式为通过可变引用（&mut T）的闭包
+    - FnOnce：表示捕获方式为通过值（T）的闭包
+- s01_9 cargo package & 可见性 
+    - hello cargo package lib`cargo new --lib hello`  // 创建依赖
+- s01_10 super & self
