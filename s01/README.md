@@ -16,3 +16,5 @@
     - hello cargo package lib`cargo new --lib hello`  // 创建依赖
 - s01_10 super & self
 - s01_11 作用域规则
+- s01_12 lifetime
+- s01_13 错误处理
