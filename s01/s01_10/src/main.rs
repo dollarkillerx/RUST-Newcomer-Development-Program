@@ -41,4 +41,6 @@ fn main() {
     my::indirect_call();
 
     hello::hello_world();
+
+    path::middleware::path();
 }
