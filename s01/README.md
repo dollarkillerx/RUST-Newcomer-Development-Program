@@ -22,5 +22,7 @@
 - s01_15 文件操作
 - s01_16 子进程
 - s01_17 args
-- s01_18 Rc Arc RefCell OnceCell
+- s01_18 Rc Arc
+- s01_19 Cell RefCell OnceCell 
+- s01_20 lazy_static
  
