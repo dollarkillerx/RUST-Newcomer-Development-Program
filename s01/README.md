@@ -23,6 +23,6 @@
 - s01_16 子进程
 - s01_17 args
 - s01_18 Rc Arc
-- s01_19 Cell RefCell OnceCell 
-- s01_20 lazy_static
+- s01_19 Cell RefCell  
+- s01_20 OnceCell lazy_static
  
