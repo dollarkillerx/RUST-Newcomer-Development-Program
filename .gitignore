@@ -33,5 +33,8 @@ s01/s01_19/target
 s01/s01_20/target
 
 
-
 s02/cli_list/target
+s02/tcp_server/target
+s02/udp_server/target
+s02/tcp_client/target
+s02/udp_client/target
