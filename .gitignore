@@ -38,3 +38,8 @@ s02/tcp_server/target
 s02/udp_server/target
 s02/tcp_client/target
 s02/udp_client/target
+
+s02/tcp_todo/caesar/target
+s02/tcp_todo/pc/target
+s02/tcp_todo/pt/target
+
