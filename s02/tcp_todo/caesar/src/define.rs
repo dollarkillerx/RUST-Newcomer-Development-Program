@@ -25,8 +25,8 @@ pub const DISCOVER_RESP: MSGType = 4;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct MSG {
-    msg_type: MSGType,
-    data: String, // JSON
+    pub msg_type: MSGType,
+    pub data: String, // JSON
 }
 
 #[derive(Serialize, Deserialize, Debug)]
