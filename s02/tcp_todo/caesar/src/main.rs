@@ -8,7 +8,7 @@ use std::io::Read;
 use std::io::Error;
 
 fn main() -> std::io::Result<()>{
-    test_data();
+    // test_data();
 
     register_server()?;
 

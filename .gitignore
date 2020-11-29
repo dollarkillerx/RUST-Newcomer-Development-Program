@@ -43,3 +43,5 @@ s02/tcp_todo/caesar/target
 s02/tcp_todo/pc/target
 s02/tcp_todo/pt/target
 
+demo/crate_demo/target
+demo/crate_demo_test/target
