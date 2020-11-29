@@ -45,9 +45,12 @@ fn handle_client(mut conn: TcpStream) -> Result<(), Box<dyn Error>> {
     let msg: define::MSG = serde_json::from_slice(buf)?;
     match msg.msg_type {
         define::REGISTER => {
+
+        }
+        define::DISCOVER => {
+
         }
         _ => {
-            // return Err(UndefinedBehavior)
             return Err(Box::new(UndefinedBehavior));
         }
     }
