@@ -1,13 +1,18 @@
 extern crate chrono;
 
-use caesar::*;
-use chrono::Utc;
+use std::error::Error;
+use std::io::Read;
 use std::net::{TcpListener, TcpStream};
 use std::thread;
-use std::io::Read;
-use std::io::Error;
 
-fn main() -> std::io::Result<()>{
+use chrono::Utc;
+
+use caesar::*;
+use common::error::{CommonError, CommonError::*};
+
+// use common::Result;
+
+fn main() -> Result<(), Box<dyn Error>> {
     // test_data();
 
     register_server()?;
@@ -15,7 +20,7 @@ fn main() -> std::io::Result<()>{
     Ok(())
 }
 
-fn register_server() -> std::io::Result<()>{
+fn register_server() -> Result<(), Box<dyn Error>> {
     let listen = TcpListener::bind("0.0.0.0:8089")?;
     for conn in listen.incoming() {
         if conn.is_err() {
@@ -29,10 +34,10 @@ fn register_server() -> std::io::Result<()>{
     Ok(())
 }
 
-fn handle_client(mut conn: TcpStream) -> std::io::Result<()>{
+fn handle_client(mut conn: TcpStream) -> Result<(), Box<dyn Error>> {
     // let mut buf:Vec<u0> = vec![0u8;4096];
     // let idx = conn.read(&mut buf)?;
-    let mut buf = [0u8;4096];
+    let mut buf = [0u8; 4096];
     let idx = conn.read(&mut buf)?;
     let buf = &buf[..idx];
 
@@ -40,10 +45,10 @@ fn handle_client(mut conn: TcpStream) -> std::io::Result<()>{
     let msg: define::MSG = serde_json::from_slice(buf)?;
     match msg.msg_type {
         define::REGISTER => {
-
-        },
+        }
         _ => {
-            Err(Error::new())
+            // return Err(UndefinedBehavior)
+            return Err(Box::new(UndefinedBehavior));
         }
     }
 
