@@ -1,7 +1,6 @@
 use std::cell::RefCell;
 
 use serde::{Deserialize, Serialize};
-use serde_json::Result;
 
 #[derive(Debug)]
 pub struct ServerList {
@@ -10,10 +9,12 @@ pub struct ServerList {
 
 #[derive(Debug)]
 pub struct ServerNode {
+    // server id
+    pub(crate) server_id: String,
     // 服务注册地址
-    src: String,
+    pub(crate) src: String,
     // 服务注册  淘汰时间
-    timestamp: i64,
+    pub(crate) timestamp: RefCell<i64>,
 }
 
 pub type MSGType = i32;
@@ -32,11 +33,11 @@ pub struct MSG {
 #[derive(Serialize, Deserialize, Debug)]
 pub struct RegisterNode {
     // ServerType
-    server_type: String,
+    pub server_type: String,
     // 服务ID
-    server_id: String,
+    pub server_id: String,
     // 服务地址
-    server_addr: String,
+    pub server_addr: String,
 }
 
 #[derive(Serialize, Deserialize, Debug)]

@@ -10,6 +10,8 @@ pub enum CommonError {
     IOError,
     SocketBindErr,
     UndefinedBehavior,
+    ServerTypeNone,
+    ServerUpdateError,
 }
 
 impl fmt::Display for CommonError {
@@ -18,6 +20,8 @@ impl fmt::Display for CommonError {
             IOError => write!(f, "io error"),
             SocketBindErr => write!(f, "Socket Bind Error"),
             UndefinedBehavior => write!(f, "Undefined Behavior"),
+            ServerTypeNone => write!(f, "server type none"),
+            ServerUpdateError => write!(f, "server update error"),
         }
     }
 }
@@ -28,6 +32,8 @@ impl Error for CommonError {
             IOError => "io error",
             SocketBindErr => "socket bind error",
             UndefinedBehavior => "Undefined Behavior",
+            ServerTypeNone => "server type is none",
+            ServerUpdateError => "server update error",
         }
     }
 }

@@ -8,9 +8,8 @@ use std::thread;
 use chrono::Utc;
 
 use caesar::*;
-use common::error::{CommonError, CommonError::*};
-
-// use common::Result;
+use caesar::core;
+use common::error::{CommonError::*};
 
 fn main() -> Result<(), Box<dyn Error>> {
     // test_data();
@@ -21,14 +20,13 @@ fn main() -> Result<(), Box<dyn Error>> {
 }
 
 fn register_server() -> Result<(), Box<dyn Error>> {
-    let listen = TcpListener::bind("0.0.0.0:8089")?;
+    let listen = TcpListener::bind("0.0.0.0:8189")?;
     for conn in listen.incoming() {
-        if conn.is_err() {
-            continue;
-        }
-
+        let con = conn?;
         thread::spawn(move || {
-            handle_client(conn.unwrap());
+            if let Err(e) = handle_client(con) {
+                println!("server error: {:?}", e);
+            }
         });
     }
     Ok(())
@@ -44,11 +42,11 @@ fn handle_client(mut conn: TcpStream) -> Result<(), Box<dyn Error>> {
 
     let msg: define::MSG = serde_json::from_slice(buf)?;
     match msg.msg_type {
-        define::REGISTER => {
-
+        define::REGISTER => {  // 服务注册
+            core::register(&msg);
         }
-        define::DISCOVER => {
-
+        define::DISCOVER => {  // 服务发现
+            core::discover(&msg);
         }
         _ => {
             return Err(Box::new(UndefinedBehavior));
