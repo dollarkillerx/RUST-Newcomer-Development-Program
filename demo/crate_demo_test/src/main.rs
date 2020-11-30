@@ -2,6 +2,7 @@ use std::env;
 use std::fs;
 use std::collections::HashMap;
 use std::cell::RefCell;
+use std::sync::{Mutex, Arc};
 
 fn main() {
     println!("Hello, world!");
@@ -9,8 +10,9 @@ fn main() {
     // test1()
     // test2();
     // test3()
-    test4()
+    // test4()
     // test5()
+    test6()
 }
 
 
@@ -102,3 +104,26 @@ fn test4() {
 //
 //     println!("{:#?}", p);
 // }
+
+fn test6() {
+    let p = Arc::new(Mutex::new(HashMap::new()));
+    {
+        let mut c = p.lock().unwrap();
+        for i in 0..10 {
+            c.insert(format!("hello_{}", i), format!("world_{}", i));
+        }
+    }
+
+    {
+        let c = p.lock().unwrap();
+        let c = c.get("hello_1").unwrap();
+        println!("c: {}",c);
+    }
+
+    {
+        let c = p.lock().unwrap();
+        for (k,v) in &*c {
+            println!("key: {} val: {}",k,v);
+        }
+    }
+}

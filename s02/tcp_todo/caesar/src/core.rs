@@ -3,7 +3,7 @@ use std::sync::Mutex;
 use super::*;
 use crate::define::*;
 use uuid::Uuid;
-use std::cell::RefCell;
+use std::cell::{Cell};
 
 lazy_static! {
     static ref DB: Mutex<HashMap<String, ServerNode>> = {
@@ -29,6 +29,13 @@ pub fn register(msg: &define::MSG) -> Result<String, Box<dyn Error>> {
         return Ok(node.server_id);
     }
 
+    let key = ServerNode::get_server_key(&node.server_type,&node.server_id);
+    let mut p = DB.lock()?;
+    for (k,v) in &*p {
+        if k.eq(key.as_str()) {
+            v.timestamp.swap(&Cell::new(Utc::now().date().and_hms(0, 0, 5).timestamp()))
+        }
+    }
 
     Ok(node.server_id)
 }
@@ -44,7 +51,7 @@ impl ServerNode {
         ServerNode {
             server_id,
             src,
-            timestamp: RefCell::new(Utc::now().date().and_hms(0, 0, heartbeat).timestamp()),
+            timestamp: Cell::new(Utc::now().date().and_hms(0, 0, heartbeat).timestamp()),
         }
     }
 

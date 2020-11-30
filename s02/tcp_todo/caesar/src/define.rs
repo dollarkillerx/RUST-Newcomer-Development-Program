@@ -1,4 +1,4 @@
-use std::cell::RefCell;
+use std::cell::{RefCell, Cell};
 
 use serde::{Deserialize, Serialize};
 
@@ -14,7 +14,7 @@ pub struct ServerNode {
     // 服务注册地址
     pub(crate) src: String,
     // 服务注册  淘汰时间
-    pub(crate) timestamp: RefCell<i64>,
+    pub(crate) timestamp: Cell<i64>,
 }
 
 pub type MSGType = i32;
