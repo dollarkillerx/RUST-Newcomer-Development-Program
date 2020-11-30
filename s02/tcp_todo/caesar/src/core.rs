@@ -30,7 +30,7 @@ pub fn register(msg: &define::MSG) -> Result<String, Box<dyn Error>> {
     }
 
     let key = ServerNode::get_server_key(&node.server_type, &node.server_id);
-    let mut p = DB.lock()?;
+    let  p = DB.lock()?;
     for (k, v) in &*p {
         if k.eq(key.as_str()) {
             v.timestamp.swap(&Cell::new(Utc::now().date().and_hms(0, 0, 5).timestamp()))
@@ -41,8 +41,22 @@ pub fn register(msg: &define::MSG) -> Result<String, Box<dyn Error>> {
 }
 
 // 服务发现
-pub fn discover(msg: &define::MSG) -> Result<(), Box<dyn Error>> {
-    Ok(())
+pub fn discover(msg: &define::MSG) -> Result<Vec<define::DiscoverResp>, Box<dyn Error>> {
+    let node: Discover = serde_json::from_str(msg.data.as_str())?;
+
+    let p = DB.lock()?;
+    let mut addrs = vec![];
+    for (k, v) in &*p {
+        if let Some(_) = k.find(node.server_type.as_str()) {
+            continue;
+        }
+        addrs.push(define::DiscoverResp {
+            server_id: v.server_id.clone(),
+            server_src: v.src.clone(),
+        })
+    }
+
+    Ok(addrs)
 }
 
 trait ServerTrait {

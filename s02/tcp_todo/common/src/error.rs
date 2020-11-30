@@ -12,6 +12,7 @@ pub enum CommonError {
     UndefinedBehavior,
     ServerTypeNone,
     ServerUpdateError,
+    ServerNotFund(String),
 }
 
 impl fmt::Display for CommonError {
@@ -22,6 +23,7 @@ impl fmt::Display for CommonError {
             UndefinedBehavior => write!(f, "Undefined Behavior"),
             ServerTypeNone => write!(f, "server type none"),
             ServerUpdateError => write!(f, "server update error"),
+            ServerNotFund(ref s) => write!(f, "server: {}  not found", s),
         }
     }
 }
@@ -34,6 +36,7 @@ impl Error for CommonError {
             UndefinedBehavior => "Undefined Behavior",
             ServerTypeNone => "server type is none",
             ServerUpdateError => "server update error",
+            ServerNotFund(..) => "server not found",
         }
     }
 }

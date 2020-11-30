@@ -12,7 +12,8 @@ fn main() {
     // test3()
     // test4()
     // test5()
-    test6()
+    // test6()
+    test7()
 }
 
 
@@ -126,4 +127,17 @@ fn test6() {
             println!("key: {} val: {}",k,v);
         }
     }
+}
+
+fn test7() {
+    let t1 = "Hello_ps".to_string();
+    let c = t1.find("ps").unwrap();
+    println!("{}",c);
+
+    let px = "xxx".to_string();
+    if let None = t1.find(px.as_str()) {
+        println!("no")
+    }
+
+    println!("{}",px);
 }

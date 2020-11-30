@@ -42,17 +42,17 @@ pub struct RegisterNode {
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct RegisterResp {
-    server_id: String,
+    pub server_id: String,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Discover {
     // 服务ID
-    server_type: String,
+    pub server_type: String,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct DiscoverResp {
-    server_id: String,
-    server_addr: String,
+    pub server_id: String,
+    pub server_src: String,
 }

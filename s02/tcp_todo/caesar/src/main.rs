@@ -1,21 +1,18 @@
 extern crate chrono;
-extern crate common;
 
 use std::error::Error;
-use std::io::Read;
+use std::io::{Read, Write};
 use std::net::{TcpListener, TcpStream};
 use std::thread;
 
-use chrono::Utc;
-
-use caesar::*;
 use caesar::core;
 use common::error::{CommonError::*};
-use common::define::{self, *};
+use common::define::{self};
 
 fn main() -> Result<(), Box<dyn Error>> {
     // test_data();
 
+    println!("Caesar Run: 0.0.0.0:8189");
     register_server()?;
 
     Ok(())
@@ -43,24 +40,39 @@ fn handle_client(mut conn: TcpStream) -> Result<(), Box<dyn Error>> {
 
 
     let msg: define::MSG = serde_json::from_slice(buf)?;
-    let id ;
+
     match msg.msg_type {
         define::REGISTER => {  // 服务注册
-            id = core::register(&msg)?;
+            register(&mut conn, &msg)
         }
         define::DISCOVER => {  // 服务发现
-            core::discover(&msg);
+            discover(&mut conn, &msg)
         }
         _ => {
-            return Err(Box::new(UndefinedBehavior));
+            Err(Box::new(UndefinedBehavior))
         }
     }
+}
 
+fn register(conn: &mut TcpStream, msg: &define::MSG) -> Result<(), Box<dyn Error>> {
+    let id = core::register(&msg)?;
+    let resp = define::RegisterResp {
+        server_id: id,
+    };
 
+    let data = serde_json::to_string(&resp)?;
 
+    conn.write(data.as_bytes())?;
     Ok(())
 }
 
+fn discover(conn: &mut TcpStream, msg: &define::MSG) -> Result<(), Box<dyn Error>> {
+    let p = core::discover(&msg)?;
+    let resp = serde_json::to_vec(&p)?;
+
+    conn.write(resp.as_slice())?;
+    Ok(())
+}
 // fn test_data() {
 //     let p = Utc::now().date();
 //     println!("p: {}", p.to_string());
