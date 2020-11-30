@@ -10,11 +10,11 @@ pub struct ServerList {
 #[derive(Debug)]
 pub struct ServerNode {
     // server id
-    pub(crate) server_id: String,
+    pub server_id: String,
     // 服务注册地址
-    pub(crate) src: String,
+    pub src: String,
     // 服务注册  淘汰时间
-    pub(crate) timestamp: Cell<i64>,
+    pub timestamp: Cell<i64>,
 }
 
 pub type MSGType = i32;

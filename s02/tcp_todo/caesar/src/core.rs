@@ -1,9 +1,9 @@
 use std::collections::HashMap;
 use std::sync::Mutex;
 use super::*;
-use crate::define::*;
 use uuid::Uuid;
 use std::cell::{Cell};
+use common::define::{self, *};
 
 lazy_static! {
     static ref DB: Mutex<HashMap<String, ServerNode>> = {
@@ -29,9 +29,9 @@ pub fn register(msg: &define::MSG) -> Result<String, Box<dyn Error>> {
         return Ok(node.server_id);
     }
 
-    let key = ServerNode::get_server_key(&node.server_type,&node.server_id);
+    let key = ServerNode::get_server_key(&node.server_type, &node.server_id);
     let mut p = DB.lock()?;
-    for (k,v) in &*p {
+    for (k, v) in &*p {
         if k.eq(key.as_str()) {
             v.timestamp.swap(&Cell::new(Utc::now().date().and_hms(0, 0, 5).timestamp()))
         }
@@ -45,8 +45,14 @@ pub fn discover(msg: &define::MSG) -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
-impl ServerNode {
-    // server_id, src, Heartbeat Time Seconds
+trait ServerTrait {
+    fn new(server_id: String, src: String, heartbeat: u32) -> ServerNode;
+    fn get_server_key(server_type: &String, server_id: &String) -> String;
+}
+
+// 对于一个外部依赖的 Struct 不能直接给他impl 需要先定义trait
+impl ServerTrait for ServerNode {
+    // server_id, src, heartbeat Time Seconds
     fn new(server_id: String, src: String, heartbeat: u32) -> Self {
         ServerNode {
             server_id,

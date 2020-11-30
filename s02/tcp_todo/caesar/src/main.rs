@@ -1,4 +1,5 @@
 extern crate chrono;
+extern crate common;
 
 use std::error::Error;
 use std::io::Read;
@@ -10,6 +11,7 @@ use chrono::Utc;
 use caesar::*;
 use caesar::core;
 use common::error::{CommonError::*};
+use common::define::{self, *};
 
 fn main() -> Result<(), Box<dyn Error>> {
     // test_data();
@@ -41,9 +43,10 @@ fn handle_client(mut conn: TcpStream) -> Result<(), Box<dyn Error>> {
 
 
     let msg: define::MSG = serde_json::from_slice(buf)?;
+    let id ;
     match msg.msg_type {
         define::REGISTER => {  // 服务注册
-            core::register(&msg);
+            id = core::register(&msg)?;
         }
         define::DISCOVER => {  // 服务发现
             core::discover(&msg);
@@ -53,19 +56,21 @@ fn handle_client(mut conn: TcpStream) -> Result<(), Box<dyn Error>> {
         }
     }
 
+
+
     Ok(())
 }
 
-fn test_data() {
-    let p = Utc::now().date();
-    println!("p: {}", p.to_string());
-    println!("Hello, world!");
-
-
-    let now = Utc::now();
-    println!("UTC now is: {}", now.timestamp());
-    println!("UTC now is: {}", Utc::now().date().and_hms(1, 0, 0).timestamp_millis());
-    println!("UTC now in RFC 2822 is: {}", now.to_rfc2822());
-    println!("UTC now in RFC 3339 is: {}", now.to_rfc3339());
-    println!("UTC now in a custom format is: {}", now.format("%a %b %e %T %Y"));
-}
+// fn test_data() {
+//     let p = Utc::now().date();
+//     println!("p: {}", p.to_string());
+//     println!("Hello, world!");
+//
+//
+//     let now = Utc::now();
+//     println!("UTC now is: {}", now.timestamp());
+//     println!("UTC now is: {}", Utc::now().date().and_hms(1, 0, 0).timestamp_millis());
+//     println!("UTC now in RFC 2822 is: {}", now.to_rfc2822());
+//     println!("UTC now in RFC 3339 is: {}", now.to_rfc3339());
+//     println!("UTC now in a custom format is: {}", now.format("%a %b %e %T %Y"));
+// }
