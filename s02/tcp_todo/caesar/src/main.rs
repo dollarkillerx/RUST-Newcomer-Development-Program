@@ -11,7 +11,6 @@ use common::define::{self};
 
 fn main() -> Result<(), Box<dyn Error>> {
     // test_data();
-
     println!("Caesar Run: 0.0.0.0:8189");
     register_server()?;
 

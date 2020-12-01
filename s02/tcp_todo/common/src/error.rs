@@ -13,6 +13,8 @@ pub enum CommonError {
     ServerTypeNone,
     ServerUpdateError,
     ServerNotFund(String),
+    MutexError,
+    RegisterError(String),
 }
 
 impl fmt::Display for CommonError {
@@ -24,6 +26,8 @@ impl fmt::Display for CommonError {
             ServerTypeNone => write!(f, "server type none"),
             ServerUpdateError => write!(f, "server update error"),
             ServerNotFund(ref s) => write!(f, "server: {}  not found", s),
+            MutexError => write!(f, "MutexError"),
+            RegisterError(ref s) => write!(f, "register error: {}", s),
         }
     }
 }
@@ -37,6 +41,8 @@ impl Error for CommonError {
             ServerTypeNone => "server type is none",
             ServerUpdateError => "server update error",
             ServerNotFund(..) => "server not found",
+            MutexError => "MutexError",
+            RegisterError(..) => "register error",
         }
     }
 }
