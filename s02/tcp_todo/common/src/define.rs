@@ -56,3 +56,24 @@ pub struct DiscoverResp {
     pub server_id: String,
     pub server_src: String,
 }
+
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct PCAccount {
+    pub account: String,
+    pub password: String,
+    pub balance: Option<f32>,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct PCMsg {
+    pub msg: String,
+    pub typ: PCType,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+enum PCType{
+    Login,
+    CreateAccount,
+
+}

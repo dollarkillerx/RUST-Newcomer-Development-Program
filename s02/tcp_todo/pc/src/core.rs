@@ -4,6 +4,32 @@ use std::net::TcpStream;
 use std::io::{Write, BufReader, Read};
 use std::thread::{self, sleep};
 use std::time::Duration;
+use std::cell::Cell;
+use std::collections::HashMap;
+
+lazy_static! {
+    static ref DB: Mutex<HashMap<String, Account>> = {
+        let mut db = HashMap::new();
+        db.insert("dollarkiller@dollarkiller.com".to_string(), Account{
+            email: String::from("dollarkiller@dollarkiller.com"),
+            password: String::from("dollarkiller"),
+            balance: Cell::new(12.0),
+        });
+        Mutex::new(db)
+    };
+
+    static ref TOKEN: Mutex<HashMap<String, String>> = {
+        let db = HashMap::new();
+        Mutex::new(db)
+    };
+}
+
+#[derive(Debug)]
+struct Account {
+    email: String,
+    password: String,
+    balance: Cell<f32>,
+}
 
 pub struct Core {
     listen_addr: String,
@@ -23,6 +49,8 @@ impl Core {
     pub fn run(&mut self) -> Result<(), Box<dyn Error>> {
         // register server
         self.register()?;
+
+        // run core
         Ok(())
     }
 
@@ -57,18 +85,18 @@ impl Core {
         {
             let d = &mut self.server_id.lock().map_err(|_| MutexError)?;
             print!("server id {:?}", d);
-            **d = Some(resp.server_id.clone());  // 注册服务ID
+            **d = Some(resp.server_id.clone());  // 注册服务ID  **好难看啊
         }
 
         // run heartbeat
         let addr = self.listen_addr.clone();
-        thread::spawn(move || {
+        thread::spawn(|| {
             Self::heartbeat(resp.server_id, addr);
         });
         Ok(())
     }
 
-    // 这里设计的放送心跳 需要获取当前服务的负载信息, 他是存储在这个struct中, 我就有点迷茫了  不用self无法获取当前服务状态， 用了回产生逃逸
+    // 这里设计的放送心跳 需要获取当前服务的负载信息, 他是存储在这个struct中   spawn回移交所有权 不能用Self
     fn heartbeat(server_id: String, server_addr: String) {
         loop {
             sleep(Duration::from_secs(3));
