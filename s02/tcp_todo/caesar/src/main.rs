@@ -1,13 +1,16 @@
 extern crate chrono;
+extern crate rand;
 
 use std::error::Error;
 use std::io::{Read, Write};
 use std::net::{TcpListener, TcpStream};
 use std::thread;
 
+use rand::Rng;
+
 use caesar::core;
-use common::error::{CommonError::*};
 use common::define::{self};
+use common::error::{CommonError::*};
 
 fn main() -> Result<(), Box<dyn Error>> {
     // test_data();
@@ -57,6 +60,8 @@ fn register(conn: &mut TcpStream, msg: &define::MSG) -> Result<(), Box<dyn Error
     let id = core::register(&msg)?;
     let resp = define::RegisterResp {
         server_id: id,
+        success: true,
+        data: None,
     };
 
     let data = serde_json::to_string(&resp)?;
@@ -67,8 +72,24 @@ fn register(conn: &mut TcpStream, msg: &define::MSG) -> Result<(), Box<dyn Error
 
 fn discover(conn: &mut TcpStream, msg: &define::MSG) -> Result<(), Box<dyn Error>> {
     let p = core::discover(&msg)?;
-    let resp = serde_json::to_vec(&p)?;
+    let mut resp = define::RegisterResp{
+        server_id: "".to_string(),
+        success: false,
+        data: None,
+    };
+    if p.len() == 0 {
+        let resp = serde_json::to_vec(&resp)?;
+        conn.write(resp.as_slice())?;
+        return Ok(())
+    }
+    resp.success = true;
+    let mut rng = rand::thread_rng();
 
+    let idx = rng.gen_range(0,p.len());
+    let rp = serde_json::to_string(&p[idx])?;
+    resp.data = Some(rp);
+
+    let resp = serde_json::to_vec(&resp)?;
     conn.write(resp.as_slice())?;
     Ok(())
 }

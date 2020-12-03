@@ -1,4 +1,4 @@
-use std::cell::{RefCell, Cell};
+use std::cell::{Cell, RefCell};
 
 use serde::{Deserialize, Serialize};
 
@@ -43,6 +43,8 @@ pub struct RegisterNode {
 #[derive(Serialize, Deserialize, Debug)]
 pub struct RegisterResp {
     pub server_id: String,
+    pub success: bool,
+    pub data: Option<String>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]

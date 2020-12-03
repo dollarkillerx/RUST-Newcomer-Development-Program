@@ -83,7 +83,9 @@ impl Core {
 
         let resp_data = &buf[..idx];
         let resp: RegisterResp = serde_json::from_slice(resp_data)?;
-
+        if !resp.success {
+            panic!("server register error")
+        }
         {
             let d = &mut self.server_id.lock().map_err(|_| MutexError)?;
             print!("server id {:?}", d);
