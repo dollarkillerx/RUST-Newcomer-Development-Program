@@ -67,13 +67,25 @@ pub struct PCAccount {
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct PCMsg {
-    pub msg: String,
+    pub msg: Vec<u8>,
     pub typ: PCType,
+
+    pub token: Option<String>, // 用户登陆后会有Token 下次即可直接调用存取方法
 }
 
 #[derive(Serialize, Deserialize, Debug)]
-enum PCType{
-    Login,
-    CreateAccount,
+pub struct PCMsgResp {
+    pub success: bool,
+    pub error_msg: Option<String>,
+    pub token: Option<String>,
+    pub balance: Option<f32>,
+}
 
+#[derive(Serialize, Deserialize, Debug)]
+pub enum PCType {
+    CreateAccount,
+    Login,
+    // 存
+    Deposits,
+    Withdrawal,
 }

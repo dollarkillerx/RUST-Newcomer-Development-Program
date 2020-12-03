@@ -1,32 +1,33 @@
 use super::*;
 use std::sync::{Mutex, Arc};
-use std::net::TcpStream;
+use std::net::{TcpStream, TcpListener};
 use std::io::{Write, BufReader, Read};
 use std::thread::{self, sleep};
 use std::time::Duration;
 use std::cell::Cell;
 use std::collections::HashMap;
+use lazy_static;
 
 lazy_static! {
     static ref DB: Mutex<HashMap<String, Account>> = {
         let mut db = HashMap::new();
         db.insert("dollarkiller@dollarkiller.com".to_string(), Account{
-            email: String::from("dollarkiller@dollarkiller.com"),
+            account: String::from("dollarkiller@dollarkiller.com"),
             password: String::from("dollarkiller"),
             balance: Cell::new(12.0),
         });
         Mutex::new(db)
     };
 
-    static ref TOKEN: Mutex<HashMap<String, String>> = {
-        let db = HashMap::new();
-        Mutex::new(db)
-    };
+    // static ref TOKEN: Mutex<HashMap<String, String>> = {
+    //     let db = HashMap::new();
+    //     Mutex::new(db)
+    // };
 }
 
 #[derive(Debug)]
 struct Account {
-    email: String,
+    account: String,
     password: String,
     balance: Cell<f32>,
 }
@@ -51,7 +52,7 @@ impl Core {
         self.register()?;
 
         // run core
-        Ok(())
+        self.core()
     }
 
     fn register(&mut self) -> Result<(), Box<dyn Error>> {
@@ -146,5 +147,82 @@ impl Core {
                 _ => {}
             }
         }
+    }
+
+    // 核心业务
+    fn core(&mut self) -> Result<(), Box<dyn Error>> {
+        let client = TcpListener::bind(&self.listen_addr)?;
+        println!("listen on {}", &self.listen_addr);
+        for conn in client.incoming() {
+            let conn = conn?;
+            conn.set_ttl(200)?;
+            thread::spawn(move || {
+                match Self::core_handle_client(conn) {
+                    Err(e) => {
+                        println!("err: {}", e);
+                    }
+                    _ => {}
+                }
+            });
+        }
+        Ok(())
+    }
+
+    fn core_handle_client(mut conn: TcpStream) -> Result<(), Box<dyn Error>> {
+        let mut buf = [0u8; 2048];
+        let idx = conn.read(&mut buf)?;
+        let buf = &buf[..idx];
+        let msg: PCMsg = serde_json::from_slice(buf)?;
+
+
+        match msg.typ {
+            CreateAccount => {
+                match Self::create_account(&msg.msg) {
+                    Err(e) => {
+                        let msg = PCMsgResp{
+                            success: false,
+                            error_msg: Some(e.to_string()),
+                            token: None,
+                            balance: None,
+                        };
+                        let resp_data = serde_json::to_vec(&msg)?;
+                        conn.write(resp_data.as_slice())?;
+                    },
+                    _ => {
+                        let msg = PCMsgResp{
+                            success: true,
+                            error_msg: None,
+                            token: None,
+                            balance: None,
+                        };
+                        let resp_data = serde_json::to_vec(&msg)?;
+                        conn.write(resp_data.as_slice())?;
+                    }
+                }
+            }
+            Login => {
+
+            }
+            Deposits => {}
+            Withdrawal => {}
+        }
+        Ok(())
+    }
+
+    fn create_account(data: &Vec<u8>) -> Result<(), Box<dyn Error>> {
+        let account: PCAccount = serde_json::from_slice(data)?;
+        // 创建逻辑
+        let mut p = DB.lock()?;
+        p.insert(account.account.clone(), Account {
+            account: account.account.clone(),
+            password: account.password.clone(),
+            balance: Cell::new(0.0),
+        });
+        Ok(())
+    }
+
+    fn login(data: &Vec<u8>) -> Result<String, Box<dyn Error>> {
+
+        Ok("".to_string())
     }
 }

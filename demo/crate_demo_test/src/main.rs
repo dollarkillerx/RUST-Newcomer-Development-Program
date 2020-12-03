@@ -13,7 +13,8 @@ fn main() {
     // test4()
     // test5()
     // test6()
-    test7()
+    // test7()
+    test8()
 }
 
 
@@ -118,13 +119,13 @@ fn test6() {
     {
         let c = p.lock().unwrap();
         let c = c.get("hello_1").unwrap();
-        println!("c: {}",c);
+        println!("c: {}", c);
     }
 
     {
         let c = p.lock().unwrap();
-        for (k,v) in &*c {
-            println!("key: {} val: {}",k,v);
+        for (k, v) in &*c {
+            println!("key: {} val: {}", k, v);
         }
     }
 }
@@ -132,12 +133,49 @@ fn test6() {
 fn test7() {
     let t1 = "Hello_ps".to_string();
     let c = t1.find("ps").unwrap();
-    println!("{}",c);
+    println!("{}", c);
 
     let px = "xxx".to_string();
     if let None = t1.find(px.as_str()) {
         println!("no")
     }
 
-    println!("{}",px);
+    println!("{}", px);
+}
+
+use serde::{Deserialize, Serialize};
+
+
+#[derive(Serialize, Deserialize, Debug)]
+struct Ping {
+    ping: String,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+struct Pang {
+    pang: String,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+struct Msg<T> {
+    data: T,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+enum MsgType {
+    Login,
+    Out,
+}
+
+fn test8() {
+    let p = Msg { data: Ping { ping: "ping".to_string() } };
+    let c = serde_json::to_string(&p).unwrap();
+    println!("{}", c);
+
+    // let a:Msg<Pang> = serde_json::from_str(c.as_str()).unwrap();
+    // println!("{:?}",a);
+
+    let cd = Msg{data: MsgType::Login};
+    let c = serde_json::to_string(&cd).unwrap();
+    println!("{}", c);
 }
