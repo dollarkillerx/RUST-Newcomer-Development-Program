@@ -15,6 +15,11 @@ pub enum CommonError {
     ServerNotFund(String),
     MutexError,
     RegisterError(String),
+    PasswordErrorOrUserNofFound,
+    Unauthorized,
+    AccountNotFound,
+    ParameterError,
+    InsufficientBalance(String),
 }
 
 impl fmt::Display for CommonError {
@@ -28,6 +33,11 @@ impl fmt::Display for CommonError {
             ServerNotFund(ref s) => write!(f, "server: {}  not found", s),
             MutexError => write!(f, "MutexError"),
             RegisterError(ref s) => write!(f, "register error: {}", s),
+            PasswordErrorOrUserNofFound => write!(f, "PasswordErrorOrUserNotFound"),
+            Unauthorized => write!(f, "Unauthorized"),
+            AccountNotFound => write!(f, "Account Not Found"),
+            ParameterError => write!(f, "ParameterError"),
+            InsufficientBalance(ref s) => write!(f, "{}", s),
         }
     }
 }
@@ -43,6 +53,11 @@ impl Error for CommonError {
             ServerNotFund(..) => "server not found",
             MutexError => "MutexError",
             RegisterError(..) => "register error",
+            PasswordErrorOrUserNofFound => "PasswordErrorOrUserNotFound",
+            Unauthorized => "Unauthorized",
+            AccountNotFound => "Account Not Found",
+            ParameterError => "ParameterError",
+            InsufficientBalance(..) => "InsufficientBalance",
         }
     }
 }

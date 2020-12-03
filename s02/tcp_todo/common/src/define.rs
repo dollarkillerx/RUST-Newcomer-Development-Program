@@ -88,4 +88,5 @@ pub enum PCType {
     // 存
     Deposits,
     Withdrawal,
+    BalanceInquiry,
 }

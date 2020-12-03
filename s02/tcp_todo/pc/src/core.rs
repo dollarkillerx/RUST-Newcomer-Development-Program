@@ -7,6 +7,7 @@ use std::time::Duration;
 use std::cell::Cell;
 use std::collections::HashMap;
 use lazy_static;
+use uuid::Uuid;
 
 lazy_static! {
     static ref DB: Mutex<HashMap<String, Account>> = {
@@ -19,10 +20,10 @@ lazy_static! {
         Mutex::new(db)
     };
 
-    // static ref TOKEN: Mutex<HashMap<String, String>> = {
-    //     let db = HashMap::new();
-    //     Mutex::new(db)
-    // };
+    static ref TOKEN: Mutex<HashMap<String, String>> = {
+        let db = HashMap::new();
+        Mutex::new(db)
+    };
 }
 
 #[derive(Debug)]
@@ -179,7 +180,7 @@ impl Core {
             CreateAccount => {
                 match Self::create_account(&msg.msg) {
                     Err(e) => {
-                        let msg = PCMsgResp{
+                        let msg = PCMsgResp {
                             success: false,
                             error_msg: Some(e.to_string()),
                             token: None,
@@ -187,9 +188,9 @@ impl Core {
                         };
                         let resp_data = serde_json::to_vec(&msg)?;
                         conn.write(resp_data.as_slice())?;
-                    },
+                    }
                     _ => {
-                        let msg = PCMsgResp{
+                        let msg = PCMsgResp {
                             success: true,
                             error_msg: None,
                             token: None,
@@ -201,10 +202,101 @@ impl Core {
                 }
             }
             Login => {
-
+                match Self::login(&msg.msg) {
+                    Err(e) => {
+                        let msg = PCMsgResp {
+                            success: false,
+                            error_msg: Some(e.to_string()),
+                            token: None,
+                            balance: None,
+                        };
+                        let resp_data = serde_json::to_vec(&msg)?;
+                        conn.write(resp_data.as_slice())?;
+                    }
+                    Ok(token) => {
+                        let msg = PCMsgResp {
+                            success: true,
+                            error_msg: None,
+                            token: Some(token),
+                            balance: None,
+                        };
+                        let resp_data = serde_json::to_vec(&msg)?;
+                        conn.write(resp_data.as_slice())?;
+                    }
+                }
             }
-            Deposits => {}
-            Withdrawal => {}
+            Deposits => {
+                match Self::deposits(&msg.msg, msg.token.clone()) {
+                    Err(e) => {
+                        let msg = PCMsgResp {
+                            success: false,
+                            error_msg: Some(e.to_string()),
+                            token: None,
+                            balance: None,
+                        };
+                        let resp_data = serde_json::to_vec(&msg)?;
+                        conn.write(resp_data.as_slice())?;
+                    }
+                    _ => {
+                        let msg = PCMsgResp {
+                            success: true,
+                            error_msg: None,
+                            token: None,
+                            balance: None,
+                        };
+                        let resp_data = serde_json::to_vec(&msg)?;
+                        conn.write(resp_data.as_slice())?;
+                    }
+                }
+            }
+            Withdrawal => {
+                match Self::withdrawal(&msg.msg, msg.token.clone()) {
+                    Err(e) => {
+                        let msg = PCMsgResp {
+                            success: false,
+                            error_msg: Some(e.to_string()),
+                            token: None,
+                            balance: None,
+                        };
+                        let resp_data = serde_json::to_vec(&msg)?;
+                        conn.write(resp_data.as_slice())?;
+                    }
+                    _ => {
+                        let msg = PCMsgResp {
+                            success: true,
+                            error_msg: None,
+                            token: None,
+                            balance: None,
+                        };
+                        let resp_data = serde_json::to_vec(&msg)?;
+                        conn.write(resp_data.as_slice())?;
+                    }
+                }
+            }
+            BalanceInquiry => {
+                match Self::balance_inquiry(msg.token.clone()) {
+                    Err(e) => {
+                        let msg = PCMsgResp {
+                            success: false,
+                            error_msg: Some(e.to_string()),
+                            token: None,
+                            balance: None,
+                        };
+                        let resp_data = serde_json::to_vec(&msg)?;
+                        conn.write(resp_data.as_slice())?;
+                    }
+                    Ok(balance) => {
+                        let msg = PCMsgResp {
+                            success: true,
+                            error_msg: None,
+                            token: None,
+                            balance: Some(balance),
+                        };
+                        let resp_data = serde_json::to_vec(&msg)?;
+                        conn.write(resp_data.as_slice())?;
+                    }
+                }
+            }
         }
         Ok(())
     }
@@ -222,7 +314,107 @@ impl Core {
     }
 
     fn login(data: &Vec<u8>) -> Result<String, Box<dyn Error>> {
+        let account: PCAccount = serde_json::from_slice(data)?;
 
-        Ok("".to_string())
+        let p = DB.lock()?;
+        let pc = match p.get(&account.account) {
+            None => {
+                return Err(Box::new(PasswordErrorOrUserNofFound));
+            }
+            Some(data) => data,
+        };
+        if pc.password == account.password {
+            let token = Self::generate_token(account.account.clone())?;
+            return Ok(token);
+        }
+        Err(Box::new(PasswordErrorOrUserNofFound))
+    }
+
+    fn generate_token(account: String) -> Result<String, Box<dyn Error>> {
+        let mut db = TOKEN.lock()?;
+        let token = Uuid::new_v4().to_string();
+        db.insert(token.clone(), account);
+        Ok(token)
+    }
+
+    fn deposits(data: &Vec<u8>, toke: Option<String>) -> Result<(), Box<dyn Error>> {
+        // check token
+        let account_id = Self::check_token(toke)?;
+
+        let msg: PCAccount = serde_json::from_slice(data)?;
+        let money = match msg.balance {
+            None => {
+                return Err(Box::new(ParameterError));
+            }
+            Some(t) => t,
+        };
+        // get account
+        let b = DB.lock()?;
+        let account = match b.get(&account_id) {
+            None => {
+                return Err(Box::new(AccountNotFound));
+            }
+            Some(e) => e,
+        };
+
+        account.balance.set(account.balance.get() + money);
+        Ok(())
+    }
+
+    fn withdrawal(data: &Vec<u8>, toke: Option<String>) -> Result<(), Box<dyn Error>> {
+        // check token
+        let account_id = Self::check_token(toke)?;
+
+        let msg: PCAccount = serde_json::from_slice(data)?;
+        let money = match msg.balance {
+            None => {
+                return Err(Box::new(ParameterError));
+            }
+            Some(t) => t,
+        };
+        // get account
+        let b = DB.lock()?;
+        let account = match b.get(&account_id) {
+            None => {
+                return Err(Box::new(AccountNotFound));
+            }
+            Some(e) => e,
+        };
+
+        if account.balance.get() < money {
+            return Err(Box::new(InsufficientBalance(format!("InsufficientBalance balance: {}", account.balance.get()))));
+        }
+        account.balance.set(account.balance.get() - money);
+        Ok(())
+    }
+
+    fn check_token(token: Option<String>) -> Result<String, Box<dyn Error>> {
+        let token = match token {
+            Some(p) => p,
+            None => {
+                return Err(Box::new(Unauthorized));
+            }
+        };
+        let db = TOKEN.lock()?;
+        let account = match db.get(&token) {
+            Some(p) => p,
+            None => {
+                return Err(Box::new(Unauthorized));
+            }
+        };
+        Ok(account.clone())
+    }
+
+    fn balance_inquiry(toke: Option<String>) -> Result<f32, Box<dyn Error>> {
+        let account_id = Self::check_token(toke)?;
+        let db = DB.lock()?;
+        let ac = match db.get(&account_id) {
+            None => {
+                return Err(Box::new(PasswordErrorOrUserNofFound));
+            }
+            Some(data) => data,
+        };
+
+        Ok(ac.balance.get())
     }
 }
