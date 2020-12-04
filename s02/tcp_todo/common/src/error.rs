@@ -20,6 +20,7 @@ pub enum CommonError {
     AccountNotFound,
     ParameterError,
     InsufficientBalance(String),
+    DiscoverError(String),
 }
 
 impl fmt::Display for CommonError {
@@ -38,6 +39,7 @@ impl fmt::Display for CommonError {
             AccountNotFound => write!(f, "Account Not Found"),
             ParameterError => write!(f, "ParameterError"),
             InsufficientBalance(ref s) => write!(f, "{}", s),
+            DiscoverError(ref s) => write!(f, "DiscoverError: {}", s),
         }
     }
 }
@@ -58,6 +60,7 @@ impl Error for CommonError {
             AccountNotFound => "Account Not Found",
             ParameterError => "ParameterError",
             InsufficientBalance(..) => "InsufficientBalance",
+            DiscoverError(..) => "DiscoverError",
         }
     }
 }
