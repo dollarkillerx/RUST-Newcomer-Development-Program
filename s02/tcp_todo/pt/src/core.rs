@@ -1,7 +1,8 @@
-use super::*;
 use std::error::Error;
+use std::io::{Read, Write};
 use std::net::TcpStream;
-use std::io::{Write, Read};
+
+use super::*;
 
 pub struct Core {
     listen_addr: String,
@@ -55,9 +56,60 @@ impl Core {
             typ: Login,
             token: None,
         };
-        let req = serde_json::to_vec(&msg);
+        let req = serde_json::to_vec(&msg)?;
         let addr = self.discover()?;
-        // TcpStream::connect(&self.caesar_addr)
+        let mut conn = TcpStream::connect(addr)?;
+        conn.write(&req)?;
+
+        let mut buf = [0u8; 2048];
+        let idx = conn.read(&mut buf)?;
+        let buf = &buf[..idx];
+
+        let resp: PCMsgResp = serde_json::from_slice(buf)?;
+        if !resp.success {
+            return Err(Box::new(PasswordErrorOrUserNofFound));
+        }
+
+        self.token = Some(resp.token.unwrap());
+        Ok(())
+    }
+
+    pub fn create_account(&self, account: String, password: String) -> Result<(), Box<dyn Error>> {
+        let act = PCAccount {
+            account,
+            password,
+            balance: None,
+        };
+        let req = serde_json::to_vec(&act)?;
+        let msg = PCMsg {
+            msg: req,
+            typ: CreateAccount,
+            token: None,
+        };
+        let req = serde_json::to_vec(&msg)?;
+        let addr = self.discover()?;
+        let mut conn = TcpStream::connect(addr)?;
+        conn.write(&req)?;
+
+        let mut buf = [0u8; 2048];
+        let idx = conn.read(&mut buf)?;
+        let buf = &buf[..idx];
+
+        let resp: PCMsgResp = serde_json::from_slice(buf)?;
+        if !resp.success {
+            return Err(Box::new(AccountNotFound));
+        }
+
+        Ok(())
+    }
+
+    pub fn balance_inquiry(&self) -> Result<(), Box<dyn Error>> {
+        let token = match &self.token {
+            None => {
+                return Err(Box::new(Unauthorized));
+            }
+            Some(t) => t,
+        };
 
         Ok(())
     }
