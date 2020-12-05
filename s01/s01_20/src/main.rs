@@ -5,11 +5,13 @@ use std::sync::Mutex;
 extern crate lazy_static;
 use once_cell::sync::Lazy;
 use once_cell::sync::OnceCell;
+use std::net::TcpStream;
 
 fn main() {
     println!("Hello, world!");
     test_once_cell();
     test_lazy_static();
+    init_db();
 }
 
 static GLOBAL_DATA: Lazy<Mutex<HashMap<i32, String>>> = Lazy::new(|| {
@@ -19,6 +21,7 @@ static GLOBAL_DATA: Lazy<Mutex<HashMap<i32, String>>> = Lazy::new(|| {
     m.insert(15, "Spica15".to_string());
     Mutex::new(m)
 });
+
 
 // set(T) => 安全的设置全局变量
 // get() -> T => 获取已经设置的全局变量
@@ -34,6 +37,14 @@ fn global_data() -> &'static Mutex<HashMap<i32, String>> {
         Mutex::new(m)
     })
 }
+
+// fn global_client() -> &'static Mutex<TcpStream> {
+//     static Client: OnceCell<Mutex<TcpStream>> = OnceCell::new();
+//     Client.get_or_init(|| {
+//         let conn = TcpStream::connect("0.0.0.0:8081").unwrap();
+//         Mutex::new(conn)
+//     })
+// }
 
 fn test_once_cell() {  // 是一种只执行一次的容器，多用于全局变量，安全初始化，或者延迟初始化
     let p = GLOBAL_DATA.lock().unwrap();
@@ -51,4 +62,13 @@ lazy_static! {
 
 fn test_lazy_static() {
     println!("{:?}",HASHMAP.lock());
+}
+
+static mut DBB: Option<Mutex<HashMap<u32,String>>> = None;
+
+fn init_db() {
+    unsafe {
+        let mp:HashMap<u32,String> = HashMap::new();
+        DBB = Some(Mutex::new(mp));
+    }
 }

@@ -4,3 +4,6 @@
 ### dir
 - s03/std_1  async_std 基础
 - s03/std_2  通信
+- s03/std_3  task test
+- s03/std_4  聊天程序
+- s03/std_5

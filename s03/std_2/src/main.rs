@@ -50,8 +50,6 @@ async fn test2() {
     // let p = f1.join(f2).join(f3);
     // p.await;
 
-
-
     let r = rev.clone();
     let f5 = task::spawn(async move {
         println!("start");
