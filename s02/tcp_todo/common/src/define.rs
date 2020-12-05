@@ -69,7 +69,7 @@ pub struct PCAccount {
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct PCMsg {
-    pub msg: Vec<u8>,
+    pub msg: Option<Vec<u8>>,
     pub typ: PCType,
 
     pub token: Option<String>, // 用户登陆后会有Token 下次即可直接调用存取方法

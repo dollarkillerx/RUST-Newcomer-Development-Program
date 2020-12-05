@@ -1,9 +1,12 @@
+use std::cell::Cell;
 use std::collections::HashMap;
 use std::sync::Mutex;
-use super::*;
+
 use uuid::Uuid;
-use std::cell::{Cell};
+
 use common::define::{self, *};
+
+use super::*;
 
 lazy_static! {
     static ref DB: Mutex<HashMap<String, ServerNode>> = {
@@ -20,9 +23,10 @@ pub fn register(msg: &define::MSG) -> Result<String, Box<dyn Error>> {
         return Err(Box::new(ServerTypeNone));
     }
 
-    if node.server_id != "" {
+    if node.server_id == "" {
         // 服务第一次进来进行服务注册
         node.server_id = Uuid::new_v4().to_string();
+        println!("id: {}", node.server_id);
         let server_node = ServerNode::new(node.server_id.clone(), node.server_addr, 5);
         let mut p = DB.lock()?;
         p.insert(ServerNode::get_server_key(&node.server_type, &node.server_id), server_node);
@@ -30,7 +34,7 @@ pub fn register(msg: &define::MSG) -> Result<String, Box<dyn Error>> {
     }
 
     let key = ServerNode::get_server_key(&node.server_type, &node.server_id);
-    let  p = DB.lock()?;
+    let p = DB.lock()?;
     for (k, v) in &*p {
         if k.eq(key.as_str()) {
             v.timestamp.swap(&Cell::new(Utc::now().date().and_hms(0, 0, 5).timestamp()))
@@ -43,11 +47,10 @@ pub fn register(msg: &define::MSG) -> Result<String, Box<dyn Error>> {
 // 服务发现
 pub fn discover(msg: &define::MSG) -> Result<Vec<define::DiscoverResp>, Box<dyn Error>> {
     let node: Discover = serde_json::from_str(msg.data.as_str())?;
-
     let p = DB.lock()?;
     let mut addrs = vec![];
     for (k, v) in &*p {
-        if let Some(_) = k.find(node.server_type.as_str()) {
+        if let None = k.find(node.server_type.as_str()) {
             continue;
         }
         addrs.push(define::DiscoverResp {

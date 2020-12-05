@@ -57,9 +57,10 @@ fn handle_client(mut conn: TcpStream) -> Result<(), Box<dyn Error>> {
 }
 
 fn register(conn: &mut TcpStream, msg: &define::MSG) -> Result<(), Box<dyn Error>> {
+    println!("in {}",conn.peer_addr().unwrap().to_string());
     let id = core::register(&msg)?;
     let resp = define::RegisterResp {
-        server_id: id,
+        server_id: id.clone(),
         success: true,
         data: None,
     };
@@ -67,12 +68,13 @@ fn register(conn: &mut TcpStream, msg: &define::MSG) -> Result<(), Box<dyn Error
     let data = serde_json::to_string(&resp)?;
 
     conn.write(data.as_bytes())?;
+    println!("register success: addr: {} id: {}", conn.peer_addr().unwrap().to_string(), id);
     Ok(())
 }
 
 fn discover(conn: &mut TcpStream, msg: &define::MSG) -> Result<(), Box<dyn Error>> {
     let p = core::discover(&msg)?;
-    let mut resp = define::RegisterResp{
+    let mut resp = define::RegisterResp {
         server_id: "".to_string(),
         success: false,
         data: None,
@@ -80,12 +82,12 @@ fn discover(conn: &mut TcpStream, msg: &define::MSG) -> Result<(), Box<dyn Error
     if p.len() == 0 {
         let resp = serde_json::to_vec(&resp)?;
         conn.write(resp.as_slice())?;
-        return Ok(())
+        return Ok(());
     }
     resp.success = true;
     let mut rng = rand::thread_rng();
 
-    let idx = rng.gen_range(0,p.len());
+    let idx = rng.gen_range(0, p.len());
     let rp = serde_json::to_string(&p[idx])?;
     resp.data = Some(rp);
 

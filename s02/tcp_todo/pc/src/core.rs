@@ -1,13 +1,15 @@
-use super::*;
-use std::sync::{Mutex, Arc};
-use std::net::{TcpStream, TcpListener};
-use std::io::{Write, BufReader, Read};
-use std::thread::{self, sleep};
-use std::time::Duration;
 use std::cell::Cell;
 use std::collections::HashMap;
+use std::io::{BufReader, Read, Write};
+use std::net::{TcpListener, TcpStream};
+use std::sync::{Arc, Mutex};
+use std::thread::{self, sleep};
+use std::time::Duration;
+
 use lazy_static;
 use uuid::Uuid;
+
+use super::*;
 
 lazy_static! {
     static ref DB: Mutex<HashMap<String, Account>> = {
@@ -94,14 +96,17 @@ impl Core {
 
         // run heartbeat
         let addr = self.listen_addr.clone();
+        let caesar = self.caesar_addr.clone();
+        println!("register success id: {}", resp.server_id);
         thread::spawn(|| {
-            Self::heartbeat(resp.server_id, addr);
+            Self::heartbeat(resp.server_id, addr, caesar);
         });
+
         Ok(())
     }
 
     // 这里设计的放送心跳 需要获取当前服务的负载信息, 他是存储在这个struct中   spawn回移交所有权 不能用Self
-    fn heartbeat(server_id: String, server_addr: String) {
+    fn heartbeat(server_id: String, server_addr: String, caesar_addr: String) {
         loop {
             sleep(Duration::from_secs(3));
             // 定时发送心跳确保存活
@@ -111,24 +116,25 @@ impl Core {
                 server_addr: server_addr.clone(),
                 server_type: "pc".to_string(),
             };
-            let node_msg = serde_json::to_string(&node).unwrap();
+
+            let node_msg = serde_json::to_string(&node).expect("what fuck");
 
             let msg = MSG {
                 msg_type: REGISTER,
                 data: node_msg,
             };
 
-            let mut conn = match TcpStream::connect(&server_addr) {
+            let mut conn = match TcpStream::connect(&caesar_addr) {
                 Ok(r) => r,
                 Err(e) => {
-                    println!("{}", e);
+                    println!("conn errror {}", e);
                     continue;
                 }
             };
 
             match conn.set_ttl(100) {
                 Err(e) => {
-                    println!("{}", e);
+                    println!("set ttl {}", e);
                     continue;
                 }
                 _ => {}
@@ -137,18 +143,46 @@ impl Core {
             let msg_data = match serde_json::to_vec(&msg) {
                 Ok(r) => r,
                 Err(e) => {
-                    println!("{}", e);
+                    println!("to vec {}", e);
                     continue;
                 }
             };
 
             match conn.write(msg_data.as_slice()) {
                 Err(e) => {
-                    println!("{}", e);
+                    println!("write {}", e);
                     continue;
                 }
                 _ => {}
             }
+
+
+            let mut reader = BufReader::new(&conn);
+            let mut buf: [u8; 2048] = [0; 2048];
+            let idx = match reader.read(&mut buf) {
+                Ok(r) => r,
+                Err(e) => {
+                    println!("e: {}", e);
+                    continue;
+                }
+            };
+            if idx == 0 {
+                println!("reader idx is 0");
+                continue;
+            }
+            let resp_data = &buf[..idx];
+            let resp: RegisterResp = match serde_json::from_slice(resp_data) {
+                Ok(r) => r,
+                Err(e) => {
+                    println!("e: {}", e);
+                    continue;
+                }
+            };
+            if resp.success {
+                println!("heartbeat success");
+                continue
+            }
+            println!("heartbeat error: {:?}",resp.data);
         }
     }
 
@@ -180,7 +214,7 @@ impl Core {
 
         match msg.typ {
             CreateAccount => {
-                match Self::create_account(&msg.msg) {
+                match Self::create_account(&msg.msg.unwrap()) {
                     Err(e) => {
                         let msg = PCMsgResp {
                             success: false,
@@ -204,7 +238,7 @@ impl Core {
                 }
             }
             Login => {
-                match Self::login(&msg.msg) {
+                match Self::login(&msg.msg.unwrap()) {
                     Err(e) => {
                         let msg = PCMsgResp {
                             success: false,
@@ -228,7 +262,7 @@ impl Core {
                 }
             }
             Deposits => {
-                match Self::deposits(&msg.msg, msg.token.clone()) {
+                match Self::deposits(&msg.msg.unwrap(), msg.token.clone()) {
                     Err(e) => {
                         let msg = PCMsgResp {
                             success: false,
@@ -252,7 +286,7 @@ impl Core {
                 }
             }
             Withdrawal => {
-                match Self::withdrawal(&msg.msg, msg.token.clone()) {
+                match Self::withdrawal(&msg.msg.unwrap(), msg.token.clone()) {
                     Err(e) => {
                         let msg = PCMsgResp {
                             success: false,
