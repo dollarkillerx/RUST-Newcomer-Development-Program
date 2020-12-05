@@ -45,3 +45,6 @@ s02/tcp_todo/pt/target
 
 demo/crate_demo/target
 demo/crate_demo_test/target
+
+s03/std_1/target
+s03/std_2/target
