@@ -49,7 +49,7 @@ async fn test4() {
     // delay 延迟执行
     let f1 = future::ready(add(56, 59)).timeout(time::Duration::from_secs(2));
     let r = f1.await;
-    println!("test3 r: {}", r);
+    println!("test3 r: {:?}", r);
     println!();
 }
 
