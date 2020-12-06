@@ -72,3 +72,4 @@ fn init_db() {
         DBB = Some(Mutex::new(mp));
     }
 }
+
