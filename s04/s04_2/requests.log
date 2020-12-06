@@ -1,0 +1,45 @@
+2020-12-06 21:08:08.402400072 +08:00 INFO rbatis::plugin::log - [rbatis] [] Exec ==> :
+    CREATE TABLE `users` (
+	`id` BIGINT NOT NULL AUTO_INCREMENT,
+	`account` VARCHAR(255) NOT NULL COMMENT "account",
+	`password` CHAR(32) NOT NULL COMMENT "password",
+	PRIMARY KEY(`id`),
+	UNIQUE KEY`account`(`account`)
+    )ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=UTF8;
+    
+2020-12-06 21:08:08.441621421 +08:00 INFO rbatis::plugin::log - [rbatis] [] RowsAffected <== 0
+2020-12-06 21:08:36.316080245 +08:00 INFO rbatis::plugin::log - [rbatis] [] Exec ==> :
+    CREATE TABLE `users` (
+	`id` BIGINT NOT NULL AUTO_INCREMENT,
+	`account` VARCHAR(255) NOT NULL COMMENT "account",
+	`password` CHAR(32) NOT NULL COMMENT "password",
+	PRIMARY KEY(`id`),
+	UNIQUE KEY`account`(`account`)
+    )ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=UTF8;
+    
+2020-12-06 21:12:56.555537775 +08:00 INFO rbatis::plugin::log - [rbatis] [] Exec ==> :show tables;
+2020-12-06 21:12:56.562322490 +08:00 INFO rbatis::plugin::log - [rbatis] [] RowsAffected <== 0
+2020-12-06 21:37:52.749561134 +08:00 INFO rbatis::plugin::log - [rbatis] [] Exec  ==> INSERT INTO users (id, account, password) VALUES (?,?,?)
+                                                                [rbatis] [] Args  ==> [null,null,null]
+2020-12-06 21:37:52.757348635 +08:00 INFO rbatis::plugin::log - [rbatis] [] RowsAffected <== 0
+2020-12-06 21:37:52.757677708 +08:00 INFO rbatis::plugin::log - [rbatis] [] Query ==> SELECT id, account, password FROM users WHERE account = ?
+                                                                [rbatis] [] Args  ==> ["dollarkiller"]
+2020-12-06 21:37:52.761431832 +08:00 INFO rbatis::plugin::log - [rbatis] [] ReturnRows <== 0
+2020-12-06 21:38:36.847360889 +08:00 INFO rbatis::plugin::log - [rbatis] [] Exec  ==> INSERT INTO users (id, account, password) VALUES (?,?,?)
+                                                                [rbatis] [] Args  ==> [null,null,null]
+2020-12-06 21:38:36.851489618 +08:00 INFO rbatis::plugin::log - [rbatis] [] RowsAffected <== 0
+2020-12-06 21:44:01.739632496 +08:00 INFO rbatis::plugin::log - [rbatis] [] Exec  ==> INSERT INTO users (id, account, password) VALUES (?,?,?)
+                                                                [rbatis] [] Args  ==> [null,null,null]
+2020-12-06 21:44:01.743808364 +08:00 INFO rbatis::plugin::log - [rbatis] [] RowsAffected <== 0
+2020-12-06 21:47:10.589656400 +08:00 INFO rbatis::plugin::log - [rbatis] [] Exec  ==> INSERT INTO users (id, account, password) VALUES (?,?,?)
+                                                                [rbatis] [] Args  ==> [null,null,null]
+2020-12-06 21:47:10.592316372 +08:00 INFO rbatis::plugin::log - [rbatis] [] RowsAffected <== 0
+2020-12-06 21:47:39.364409939 +08:00 INFO rbatis::plugin::log - [rbatis] [] Exec  ==> INSERT INTO users (id, account, password) VALUES (?,?,?)
+                                                                [rbatis] [] Args  ==> [null,null,null]
+2020-12-06 21:47:39.368171183 +08:00 INFO rbatis::plugin::log - [rbatis] [] RowsAffected <== 0
+2020-12-06 21:49:22.165712570 +08:00 INFO rbatis::plugin::log - [rbatis] [] Exec  ==> INSERT INTO users (id, account, password) VALUES (?,?,?)
+                                                                [rbatis] [] Args  ==> [1,null,null]
+2020-12-06 21:49:22.170799031 +08:00 INFO rbatis::plugin::log - [rbatis] [] RowsAffected <== 0
+2020-12-06 21:52:27.696035677 +08:00 INFO rbatis::plugin::log - [rbatis] [] Exec  ==> INSERT INTO users (id, account, password) VALUES (?,?,?)
+                                                                [rbatis] [] Args  ==> [null,null,null]
+2020-12-06 21:52:27.698570861 +08:00 INFO rbatis::plugin::log - [rbatis] [] RowsAffected <== 0

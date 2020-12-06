@@ -12,7 +12,15 @@
 - Async_std 库学习 [s03]
     - 考核 将上面基于TCP 的TODO LIST 改为异步
 - MySQL [s04]
-    - 考核将上面的TODO LIST 存储层修改为MySQL
-- Redis [s05]
+    - 考核将上面的TODO LIST 存储层修改为MySQL  (现在市面上的ORM太不人性化了  打算写一个RUST的GORM)
+- MongoDB [s05]
+- Redis [s06]
     - 考核将上面的TODO LIST 存储层修改为Redis
   
+  
+### base middleware
+``` 
+docker run --restart=always -p 3306:3306 --name mysql -e MYSQL_ROOT_PASSWORD=root -d mysql:8
+docker run --restart=always -p 6379:6379 --name redis  -d redis:6-alpine
+docker run --restart=always -p 5432:5432 --name postgre  -e POSTGRES_PASSWORD=root -d postgres:13-alpine
+```
