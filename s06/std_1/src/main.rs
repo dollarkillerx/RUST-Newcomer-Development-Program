@@ -4,7 +4,6 @@ extern crate redis;
 
 use redis::{AsyncCommands, RedisResult};
 use futures::prelude::*;
-
 pub type Result<T> = std::result::Result<T, Box<dyn Error + Send + Sync>>;
 
 #[async_std::main]
