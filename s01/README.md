@@ -25,4 +25,6 @@
 - s01_18 Rc Arc
 - s01_19 Cell RefCell  
 - s01_20 OnceCell lazy_static
+- s01_21 动态分发 静态分发
+
  
