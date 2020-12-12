@@ -19,6 +19,8 @@
 - Redis [s06]
     - 考核将上面的TODO LIST 存储层修改为Redis
 - actix [s07]
+- tide [s07_1]
+- hyper [s07_2]
 - Tokio [s08]
 - hyper [s09]
 - 开发人性化的WEB Framework  [s10]
