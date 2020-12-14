@@ -1,5 +1,5 @@
 [package]
-name = "std_1"
+name = "demo2"
 version = "0.1.0"
 authors = ["dollarkillerx <adapawang@gmail.com>"]
 edition = "2018"
@@ -7,6 +7,3 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-futures = "0.3.8"
-mongodb = { version = "1.1.1", default-features = false, features = ["async-std-runtime"] }
-async-std = { version = "1.7.0", features = ["unstable", "attributes"] }
