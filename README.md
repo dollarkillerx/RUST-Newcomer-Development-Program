@@ -26,7 +26,11 @@
 - 开发人性化的WEB Framework  [s10]
 - 开发RORM [s11]
 - 宏 [s12]
-- 复杂生命周期 [s13]
+- 复杂生命周期 [s13] 
+- 死灵之书 [s14]
+
+### 参考资料
+- http://rust-unofficial.github.io/too-many-lists/
 
 ### base middleware
 ``` 
