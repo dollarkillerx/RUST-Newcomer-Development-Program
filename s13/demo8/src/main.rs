@@ -1,3 +1,5 @@
+use demo8::*;
+
 #[derive(Debug, Default, Clone)]
 struct User {
     username: String,
@@ -32,6 +34,8 @@ fn main() {
     println!("{:?}", c);
     let c = a_big(160);
     println!("{:?}", c);
+
+    front_of_house::awitlist();
 }
 
 #[derive(Debug)]
