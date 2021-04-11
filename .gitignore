@@ -75,6 +75,9 @@ s13/demo7/target
 s13/demo8/target
 s13/demo9/target
 s13/tr/target
+s13/test_demo/target
+s13/mimi_grep/target
+
 
 s13/error_handling/target
 s13/iterator/target
