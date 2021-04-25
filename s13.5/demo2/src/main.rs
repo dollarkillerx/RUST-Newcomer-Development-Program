@@ -68,21 +68,22 @@ impl<T> Link<T>
             return;
         }
 
-        println!("aaa");
-        // loop {
-        //     if let Some(p) = ps {
-        //         ps = p.next.as_mut();
-        //     } else {
-        //         ps.next = Some(Box::new(LinkNode { node: elem, next: None }));
-                // break;
-            // }
-        // }
+        let  mut af:Option<&mut Box<LinkNode<T>>> = None;
+        loop {
+            if let Some(p) = ps {
+                af = Option::from(p);
+                ps = p.next.as_mut();
+            } else {
+                af.unwrap().next = Some(Box::new(LinkNode { node: elem, next: None }));
+                break;
+            }
+        }
     }
 }
 
 fn test_a() {
     let mut c = Link::new();
-    for i in 0..10 {
+    for i in 1..10 {
         c.append(i);
     }
 
