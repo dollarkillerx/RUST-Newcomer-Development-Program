@@ -80,8 +80,9 @@ s13/mimi_grep/target
 
 s13.5/demo1/target
 s13.5/demo2/target
-
-
+s13.5/demo3/target
+s13.5/linked_list/target
+s13.5/linked_list_v2/target
 
 s13/error_handling/target
 s13/iterator/target
