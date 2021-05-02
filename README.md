@@ -23,6 +23,7 @@
 - hyper [s07_2]
 - Tokio [s08]
 - hyper [s09]
+- salvo [s09_salvo]
 - 开发人性化的WEB Framework  [s10]
 - 开发RORM [s11]
 - 宏 [s12]
