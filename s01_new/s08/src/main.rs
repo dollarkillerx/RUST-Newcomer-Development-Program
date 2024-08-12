@@ -10,6 +10,8 @@ fn main() {
     demo3(); // Debug, Clone, Copy,
     println!("{}", "-".repeat(30));
     demo4(); // 迭代器 重要
+    println!("{}", "-".repeat(30));
+    demo5(); // 常用迭代器
 }
 
 fn demo1() {
@@ -92,4 +94,19 @@ fn demo4() {
     println!("{}", sum_loop(&array));
     let duration = start.elapsed(); // 计算运行时间
     println!("loop Duration: {:?}", duration); // 336.1us
+}
+
+fn demo5() {
+    /**
+     * 迭代器
+     * 1. next
+     * 2. map
+     * 3. filter
+     * 4. sum
+       // 通过实现 iterator trait 实现自定义
+        pub trait Iterator {
+            type Item;
+            fn next(&mut self) -> Option<Self::Item>;
+        }
+     */
 }
