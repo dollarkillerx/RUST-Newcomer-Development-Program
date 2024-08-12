@@ -61,4 +61,16 @@ fn main() {
     struct ImportantExcerpt<'a> {
         part: &'a str,
     }
+    impl<'a> ImportantExcerpt<'a> {
+        fn get_part (&self) -> &str {
+            self.part
+        }
+    }
+
+    let r1 = String::from("hello");
+    let r2 = String::from("world");
+    let r3 = ImportantExcerpt {
+        part: &r1
+    };
+    println!("{}", r3.get_part());
 }
