@@ -12,6 +12,8 @@ fn main() {
     demo4(); // 迭代器 重要
     println!("{}", "-".repeat(30));
     demo5(); // 常用迭代器
+    println!("{}", "-".repeat(30));
+    demo6(); // 自己实现迭代器
 }
 
 fn demo1() {
@@ -109,4 +111,58 @@ fn demo5() {
             fn next(&mut self) -> Option<Self::Item>;
         }
      */
+
+    // vec
+    let v:Vec<_> = (1..=10).collect();
+    // 转换为迭代器
+    let sum:i32  = v.iter().sum(); // iter() 创建 不可变引用的迭代器
+    println!("{}", sum);
+    let iter = v.into_iter(); // into_iter() 创建 会 move 的迭代器
+    let sum:i32 = iter.sum();
+    println!("{}", sum);
+
+    let text = "hello world";
+    let iter = text.chars();
+    let up = iter.map(|c| c.to_ascii_uppercase()).collect::<String>();
+    println!("{:?}", up);
+
+
+    // iter()  iter_mut() into_iter()
+
+    let mut v:Vec<_> = (1..6).collect();
+    v.iter_mut().for_each(|x| *x += 1);
+    println!("{:?}", v);
+
+    // 消耗迭代器
+    let mut v:Vec<_> = (1..6).collect();
+    let p:Vec<_> = v.into_iter().map(|x| x + 1).collect();
+    println!("{:?}", p);
+}
+
+fn demo6() {
+    struct Stack<T> {
+        items: Vec<T>
+    }
+    impl <T> Stack<T> {
+        fn new() -> Stack<T> {
+            Stack { items: Vec::new() }
+        }
+        fn push(&mut self, item: T) {
+            self.items.push(item);
+        }
+        fn pop(&mut self) -> Option<T> {
+            self.items.pop()
+        }
+
+        fn iter(&self) -> std::slice::Iter<'_, T> {
+            self.items.iter()
+        }
+
+        fn iter_mut(&mut self) -> std::slice::IterMut<'_, T> {
+            self.items.iter_mut()
+        }
+        fn into_iter(self) -> std::vec::IntoIter<T> {
+            self.items.into_iter()
+        }
+    }
 }
