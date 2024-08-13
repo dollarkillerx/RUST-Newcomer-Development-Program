@@ -80,3 +80,17 @@ async fn search_article
     Ok(Json(articles))
 }
 
+#[web::get("/article/{id}")]
+async fn get_article
+    (state: State<Arc<AppState>>, id: Path<(u32,)>) -> Result<Json<Article>, CustomError> {
+    let conn = &state.db_pool;
+    let id = id.into_inner().0;
+    let article = sqlx::query!("SELECT * FROM articles WHERE id=$1",
+        id as i32).fetch_one(conn).await?; // Convert to i32 (optional)
+    Ok(Json(Article{
+        id: Option::from(article.id as u32),
+        title: article.title,
+        content: article.content,
+        create_date: Option::from(article.create_date),
+    }))
+}
