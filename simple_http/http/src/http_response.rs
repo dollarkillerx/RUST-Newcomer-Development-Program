@@ -1,5 +1,8 @@
 use std::collections::HashMap;
+use std::sync::Arc;
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
+use tokio::net::TcpStream;
+use tokio::sync::Mutex;
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct HttpResponse<'a> {
@@ -51,10 +54,10 @@ impl<'a> HttpResponse<'a> {
         response
     }
 
-    pub async fn send_response(&self, stream: &mut (impl AsyncWriteExt + Unpin)) -> Result<(), Box<dyn std::error::Error>> {
+    pub async fn send_response(&self, stream: Arc<Mutex<TcpStream>>) -> Result<(), Box<dyn std::error::Error>> {
         let response_string: String = self.clone().into();
-        stream.write_all(response_string.as_bytes()).await?;
-        stream.flush().await?;
+        stream.lock().await.write_all(response_string.as_bytes()).await?;
+        stream.lock().await.flush().await?;
         Ok(())
     }
 
