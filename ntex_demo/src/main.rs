@@ -8,7 +8,7 @@ use ntex::web::{self, middleware, App, HttpServer};
 use crate::errors::CustomError;
 use sqlx::{postgres::PgPoolOptions, Pool, Postgres};
 use log::info;
-use crate::api::article::get_articles;
+use crate::api::article::{delete_article, get_articles, new_article, update_article};
 
 // ntex 中整个程序共享数据
 #[derive(Debug, Clone)]
@@ -37,7 +37,8 @@ async fn main() -> std::io::Result<()> {
     HttpServer::new(move || {
         App::new().wrap(middleware::Logger::default()).
             state(Arc::clone(&app_state)).
-            service(index).service(err).service(get_articles)
+            service(index).service(err).
+            service(get_articles).service(new_article).service(update_article).service(delete_article)
     }).bind("127.0.0.1:8741")?.run().await
 }
 
