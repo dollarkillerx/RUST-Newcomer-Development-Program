@@ -1,34 +1,32 @@
 use std::collections::HashMap;
-use std::sync::Arc;
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use tokio::net::TcpStream;
-use tokio::sync::Mutex;
 
 #[derive(Debug, PartialEq, Clone)]
-pub struct HttpResponse<'a> {
-    version: &'a str,
-    status_code: &'a str,
-    status_text: &'a str,
-    headers: Option<HashMap<&'a str, &'a str>>,
+pub struct HttpResponse {
+    version: String,
+    status_code: String,
+    status_text: String,
+    headers: Option<HashMap<String, String>>,
     body: Option<String>,
 }
 
-impl<'a> Default for HttpResponse<'a> {
+impl Default for HttpResponse {
     fn default() -> Self {
         Self {
-            version: "HTTP/1.1",
-            status_code: "200",
-            status_text: "OK",
+            version: "HTTP/1.1".to_string(),
+            status_code: "200".to_string(),
+            status_text: "OK".to_string(),
             headers: None,
             body: None,
         }
     }
 }
 
-impl<'a> HttpResponse<'a> {
+impl HttpResponse {
     pub fn new(
-        status_code: &'a str,
-        headers: Option<HashMap<&'a str, &'a str>>,
+        status_code: String,
+        headers: Option<HashMap<String, String>>,
         body: Option<String>,
     ) -> Self {
         let mut response: HttpResponse = Default::default();
@@ -38,49 +36,48 @@ impl<'a> HttpResponse<'a> {
 
         response.headers = headers.or_else(|| {
             let mut h = HashMap::new();
-            h.insert("Content-Type", "text/html");
+            h.insert("Content-Type".to_string(), "text/html".to_string());
             Some(h)
         });
 
-        response.status_text = match response.status_code {
-            "200" => "OK",
-            "400" => "Bad Request",
-            "404" => "Not Found",
-            "500" => "Internal Server Error",
-            _ => "Not Found",
+        response.status_text = match response.status_code.as_str() {
+            "200" => "OK".to_string(),
+            "400" => "Bad Request".to_string(),
+            "404" => "Not Found".to_string(),
+            "500" => "Internal Server Error".to_string(),
+            _ => "Not Found".to_string(),
         };
 
         response.body = body;
         response
     }
 
-    pub async fn send_response(&self, stream: Arc<Mutex<TcpStream>>) -> Result<(), Box<dyn std::error::Error>> {
+    pub async fn send_response(&self, stream: &mut TcpStream) -> Result<(), Box<dyn std::error::Error>> {
         let response_string: String = self.clone().into();
-        stream.lock().await.write_all(response_string.as_bytes()).await?;
-        stream.lock().await.flush().await?;
+        stream.write_all(response_string.as_bytes()).await?;
         Ok(())
     }
 
     pub fn version(&self) -> &str {
-        self.version
+        &self.version
     }
 
     pub fn status_code(&self) -> &str {
-        self.status_code
+        &self.status_code
     }
 
     pub fn headers(&self) -> String {
         let mut headers = String::new();
         if let Some(h) = &self.headers {
             for (key, value) in h {
-                headers.push_str(format!("{}: {}\r\n", key, value).as_str());
+                headers.push_str(&format!("{}: {}\r\n", key, value));
             }
         }
         headers
     }
 
     pub fn status_text(&self) -> &str {
-        self.status_text
+        &self.status_text
     }
 
     pub fn body(&self) -> &str {
@@ -91,8 +88,8 @@ impl<'a> HttpResponse<'a> {
     }
 }
 
-impl<'a> From<HttpResponse<'a>> for String {
-    fn from(res: HttpResponse<'a>) -> Self {
+impl From<HttpResponse> for String {
+    fn from(res: HttpResponse) -> Self {
         format!(
             "{} {} {}\r\n{}Content-Length: {}\r\n\r\n{}",
             res.version(),
@@ -111,36 +108,36 @@ mod tests {
 
     #[tokio::test]
     async fn test_http_response() {
-        let response = HttpResponse::new("404", None, None);
+        let response = HttpResponse::new("404".to_string(), None, None);
         assert_eq!(response.status_code(), "404");
     }
 
     #[tokio::test]
     async fn test_http_response_with_headers() {
         let mut headers = HashMap::new();
-        headers.insert("Content-Type", "text/html");
-        let response = HttpResponse::new("200", Some(headers), None);
+        headers.insert("Content-Type".to_string(), "text/html".to_string());
+        let response = HttpResponse::new("200".to_string(), Some(headers), None);
         assert_eq!(response.headers(), "Content-Type: text/html\r\n");
     }
 
     #[tokio::test]
     async fn test_http_response_with_body() {
-        let response = HttpResponse::new("200", None, Some("Hello World".to_string()));
+        let response = HttpResponse::new("200".to_string(), None, Some("Hello World".to_string()));
         assert_eq!(response.body(), "Hello World");
     }
 
     #[tokio::test]
     async fn test_http_response_with_headers_and_body() {
         let mut headers = HashMap::new();
-        headers.insert("Content-Type", "text/html");
-        let response = HttpResponse::new("200", Some(headers), Some("Hello World".to_string()));
+        headers.insert("Content-Type".to_string(), "text/html".to_string());
+        let response = HttpResponse::new("200".to_string(), Some(headers), Some("Hello World".to_string()));
         assert_eq!(response.headers(), "Content-Type: text/html\r\n");
         assert_eq!(response.body(), "Hello World");
     }
 
     #[tokio::test]
     async fn test_http_response_to_string() {
-        let response = HttpResponse::new("200", None, Some("Hello World".to_string()));
+        let response = HttpResponse::new("200".to_string(), None, Some("Hello World".to_string()));
         assert_eq!(
             String::from(response),
             "HTTP/1.1 200 OK\r\nContent-Length: 11\r\n\r\nHello World"
@@ -150,8 +147,8 @@ mod tests {
     #[tokio::test]
     async fn test_http_response_to_string_with_headers() {
         let mut headers = HashMap::new();
-        headers.insert("Content-Type", "text/html");
-        let response = HttpResponse::new("200", Some(headers), Some("Hello World".to_string()));
+        headers.insert("Content-Type".to_string(), "text/html".to_string());
+        let response = HttpResponse::new("200".to_string(), Some(headers), Some("Hello World".to_string()));
         assert_eq!(
             String::from(response),
             "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nContent-Length: 11\r\n\r\nHello World"

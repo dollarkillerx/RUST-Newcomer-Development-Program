@@ -21,15 +21,12 @@ impl <'a> Server<'a> {
         println!("Listening on http://{}", self.socket_addr);
 
         loop {
-            let (socket, _) = connection_listener.accept().await.unwrap();
-            let socket = Arc::new(Mutex::new(socket));
+            let (mut socket, _) = connection_listener.accept().await.unwrap();
             tokio::spawn({
-                let socket = Arc::clone(&socket);
                 async move {
                     let mut buffer = [0; 1024];
                     loop {
                         let bytes_read = {
-                            let mut socket = socket.lock().await;
                             socket.read(&mut buffer).await.unwrap()
                         };
 
@@ -39,7 +36,7 @@ impl <'a> Server<'a> {
 
                         let req: HttpRequest = String::from_utf8(buffer[..bytes_read].to_vec()).unwrap().into();
 
-                        Router::router(req, Arc::clone(&socket)).await;
+                        Router::router(req, &mut socket).await;
                     }
                 }
             });
