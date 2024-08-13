@@ -1,8 +1,6 @@
-use std::sync::Arc;
 use http::http_request::{HttpRequest,};
-use tokio::io::{AsyncReadExt, AsyncWriteExt};
+use tokio::io::{AsyncReadExt};
 use tokio::net::TcpListener;
-use tokio::sync::Mutex;
 use crate::router::Router;
 
 pub struct Server<'a> {
