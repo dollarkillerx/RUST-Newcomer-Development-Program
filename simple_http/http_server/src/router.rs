@@ -4,11 +4,13 @@ use std::sync::Arc;
 use http::{ http_request, http_request::HttpRequest};
 use tokio::io::{ AsyncWriteExt};
 use tokio::net::TcpStream;
+use tokio::sync::Mutex;
 
 pub struct Router;
 
 impl Router {
-    pub async fn router(req: HttpRequest, stream: Arc<&TcpStream>) -> () {
+    pub async fn router(req: HttpRequest, stream: Arc<Mutex<TcpStream>>) -> () {
+        stream.lock().await.write_all("this is router".as_ref()).await.unwrap();
         println!("this is router");
         match req.method {
             http_request::Method::Get => match &req.resource {

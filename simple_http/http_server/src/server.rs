@@ -2,6 +2,7 @@ use std::sync::Arc;
 use http::http_request::{HttpRequest,};
 use tokio::io::{AsyncReadExt};
 use tokio::net::TcpListener;
+use tokio::sync::Mutex;
 use crate::router::Router;
 
 pub struct Server<'a> {
@@ -20,7 +21,8 @@ impl <'a> Server<'a> {
         println!("Listening on http://{}", self.socket_addr);
 
         loop {
-            let (mut socket, _) = connection_listener.accept().await.unwrap();
+            let (socket, _) = connection_listener.accept().await.unwrap();
+            let socket = Arc::new(Mutex::new(socket));
             tokio::spawn(async move {
                 let mut buffer = [0; 1024];
                 loop {
@@ -29,8 +31,8 @@ impl <'a> Server<'a> {
                         break;
                     }
                     let req: HttpRequest = String::from_utf8(buffer.to_vec()).unwrap().into();
-                    let socket = Arc::new(&socket);
-                    Router::router(req,socket);
+                    let socket_clone = Arc::clone(&socket);
+                    Router::router(req, socket_clone).await;
                 }
             });
         }
