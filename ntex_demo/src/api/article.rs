@@ -64,3 +64,19 @@ async fn delete_article
         create_date: Option::from(article.create_date),
     }))
 }
+
+#[web::get("/article/search/{keyword}")]
+async fn search_article
+    (state: State<Arc<AppState>>, keyword: Path<(String,)>) -> Result<Json<Vec<Article>>, CustomError> {
+    let conn = &state.db_pool;
+    let keyword = keyword.into_inner().0;
+    let articles:Vec<Article> = sqlx::query!("SELECT * FROM articles WHERE title LIKE $1",
+        format!("%{}%", keyword)).fetch_all(conn).await?.iter().map(|row| Article{
+            id: Option::from(row.id as u32),
+            title: row.title.clone(),
+            content: row.content.clone(),
+            create_date: Option::from(row.create_date),
+        }).collect();
+    Ok(Json(articles))
+}
+
