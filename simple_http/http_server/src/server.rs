@@ -1,3 +1,4 @@
+use std::sync::Arc;
 use http::http_request::{HttpRequest,};
 use tokio::io::{AsyncReadExt};
 use tokio::net::TcpListener;
@@ -5,7 +6,6 @@ use crate::router::Router;
 
 pub struct Server<'a> {
     socket_addr: &'a str,
-
 }
 
 impl <'a> Server<'a> {
@@ -29,7 +29,8 @@ impl <'a> Server<'a> {
                         break;
                     }
                     let req: HttpRequest = String::from_utf8(buffer.to_vec()).unwrap().into();
-                    Router::router(req,&mut socket);
+                    let socket = Arc::new(&socket);
+                    Router::router(req,socket);
                 }
             });
         }
