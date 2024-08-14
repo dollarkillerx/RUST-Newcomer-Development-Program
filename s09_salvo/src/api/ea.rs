@@ -10,7 +10,7 @@ pub async fn broadcast(req: &mut Request,res: &mut Response, depot: &mut Depot) 
     let state =depot.obtain::<AppState>().unwrap();
     let mut conn = state.redis.get_multiplexed_async_connection().await?;
     let broadcast_payload = req.parse_json::<BroadcastPayload>().await?;
-
+    // conn.set_ex()
     res.render(Json(&broadcast_payload));
     Ok(())
 }
