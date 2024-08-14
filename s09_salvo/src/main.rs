@@ -1,6 +1,7 @@
 mod route;
 mod api;
 mod entity;
+mod models;
 
 use std::env;
 use std::time::Duration;
