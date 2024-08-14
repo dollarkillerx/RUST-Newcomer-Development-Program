@@ -12,7 +12,7 @@ struct Animal {
 async fn main() ->tide::Result<()> {
     let mut app = tide::new();
 
-    // middleware 做的不太好 不好玩
+    // middlewares 做的不太好 不好玩
     app.at("/hello").get(hello); // 当有多个get 最后一个get会覆盖 ， 这个不想Gin
 
     println!("run in: 127.0.0.1:8080");

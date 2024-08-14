@@ -1,6 +1,7 @@
 mod errors;
 mod models;
 mod api;
+mod middlewares;
 
 use std::env;
 use std::sync::Arc;
@@ -10,6 +11,7 @@ use sqlx::{postgres::PgPoolOptions, Pool, Postgres};
 use log::info;
 use crate::api::article::{delete_article, get_article, get_articles, new_article, search_article, update_article};
 use crate::api::login::github_login;
+use crate::middlewares::auth::SayHi;
 
 // ntex 中整个程序共享数据
 #[derive(Debug, Clone)]
@@ -36,7 +38,9 @@ async fn main() -> std::io::Result<()> {
     });
 
     HttpServer::new(move || {
-        App::new().wrap(middleware::Logger::default()).
+        App::new().
+            wrap(middleware::Logger::default()).
+            wrap(SayHi::default()).
             state(Arc::clone(&app_state)).
             service(index).service(err).
             configure(|cfg| route(cfg))
