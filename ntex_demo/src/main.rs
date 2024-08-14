@@ -9,6 +9,7 @@ use crate::errors::CustomError;
 use sqlx::{postgres::PgPoolOptions, Pool, Postgres};
 use log::info;
 use crate::api::article::{delete_article, get_article, get_articles, new_article, search_article, update_article};
+use crate::api::login::github_login;
 
 // ntex 中整个程序共享数据
 #[derive(Debug, Clone)]
@@ -56,13 +57,16 @@ async fn err() -> Result<String, errors::CustomError> {
 
 fn route(cfg: &mut web::ServiceConfig) {
     cfg.service(
-        // .route("/{id}", web::get().to(article::view::get_article))
         web::scope("/api")
             .service(get_article)
             .service(get_articles)
             .service(new_article)
             .service(delete_article)
             .service(update_article)
-            .service(search_article)
+            .service(search_article).service(
+            web::scope("/user")
+                .route("/login", web::post().to(github_login))
+                // .route("/info", web::get().to(user::info::get_user_info)),
+        )
     );
 }
