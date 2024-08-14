@@ -1,0 +1,18 @@
+[package]
+name = "s09_salvo"
+version = "0.1.0"
+edition = "2021"
+
+[workspace]
+members = [".", "entity","migration"]
+
+[dependencies]
+salvo = "0.70.0"
+tokio = { version = "1.17.0", features = ["full"] }
+tracing = "0.1.35"
+tracing-subscriber = "0.3.11"
+sea-orm = { version = "1.0.0", features = ["sqlx-sqlite", "runtime-tokio-rustls", "macros", "sqlx-postgres","chrono"] }
+chrono = { version = "0.4.38" , features = ["serde"]}
+dotenvy = "0.15.7"
+serde = {version = "1.0.207", features = ["derive"]}
+serde_json = "1.0.124"
