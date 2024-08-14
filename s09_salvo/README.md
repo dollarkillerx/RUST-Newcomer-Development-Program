@@ -65,5 +65,5 @@ manager
     
     
 cargo new entity
-sea-orm-cli generate entity  -o entity/src --with-serde both
+sea-orm-cli generate entity  -o src/entity --with-serde both
 ```
