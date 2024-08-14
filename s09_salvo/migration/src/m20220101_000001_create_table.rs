@@ -30,6 +30,30 @@ impl MigrationTrait for Migration {
                     .col(text(TimeSeriesPosition::Payload))
                     .to_owned(),
             )
+            .await?;
+
+        manager
+            .create_table(
+                Table::create()
+                    .table(Account::Table)  // table name
+                    .if_not_exists()     // create table if not exists
+                    .col(
+                        ColumnDef::new(Account::Id)
+                            .string_len(255).not_null().primary_key(),
+                    )
+                    .col(ColumnDef::new(Account::CreatedAt).timestamp_with_time_zone())
+                    .col(ColumnDef::new(Account::UpdatedAt).timestamp_with_time_zone())
+                    .col(ColumnDef::new(Account::DeletedAt).timestamp_with_time_zone().null())
+                    .col(ColumnDef::new(Account::ClientId).string_len(255).not_null())
+                    .col(ColumnDef::new(Account::Account).big_integer().not_null())
+                    .col(ColumnDef::new(Account::Leverage).integer().not_null())
+                    .col(ColumnDef::new(Account::Server).string_len(255).not_null())
+                    .col(ColumnDef::new(Account::Company).string_len(255).not_null())
+                    .col(ColumnDef::new(Account::Balance).decimal_len(20, 8).not_null())
+                    .col(ColumnDef::new(Account::Profit).decimal_len(20, 8).not_null())
+                    .col(ColumnDef::new(Account::Margin).decimal_len(20, 8).not_null())
+                    .to_owned(),
+            )
             .await
     }
 
@@ -58,4 +82,21 @@ enum TimeSeriesPosition {
     Profit,
     Margin,
     Payload
+}
+
+#[derive(DeriveIden)]
+enum Account {
+    Table,
+    Id,
+    CreatedAt,
+    UpdatedAt,
+    DeletedAt,
+    ClientId,
+    Account,
+    Leverage,
+    Server,
+    Company,
+    Balance,
+    Profit,
+    Margin,
 }

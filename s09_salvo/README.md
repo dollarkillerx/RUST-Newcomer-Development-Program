@@ -63,6 +63,30 @@ manager
     )
     .await
     
+
+manager
+    .create_table(
+        Table::create()
+            .table(TimeSeriesPosition::Table)  // table name
+            .if_not_exists()     // create table if not exists
+            .col(
+                ColumnDef::new(TimeSeriesPosition::Id)
+                    .string_len(255).not_null().primary_key(),
+            )
+            .col(ColumnDef::new(Account::CreatedAt).timestamp_with_time_zone())
+            .col(ColumnDef::new(Account::UpdatedAt).timestamp_with_time_zone())
+            .col(ColumnDef::new(Account::DeletedAt).timestamp_with_time_zone().null())
+            .col(ColumnDef::new(Account::ClientId).string_len(255).not_null())
+            .col(ColumnDef::new(Account::Account).big_integer().not_null())
+            .col(ColumnDef::new(Account::Leverage).integer().not_null())
+            .col(ColumnDef::new(Account::Server).string_len(255).not_null())
+            .col(ColumnDef::new(Account::Company).string_len(255).not_null())
+            .col(ColumnDef::new(Account::Balance).decimal_len(20, 8).not_null())
+            .col(ColumnDef::new(Account::Profit).decimal_len(20, 8).not_null())
+            .col(ColumnDef::new(Account::Margin).decimal_len(20, 8).not_null())
+            .to_owned(),
+    )
+    .await
     
 cargo new entity
 sea-orm-cli generate entity  -o src/entity --with-serde both
