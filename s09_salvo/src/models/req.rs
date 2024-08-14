@@ -1,5 +1,8 @@
 use serde::{Deserialize, Serialize};
 use sea_orm::entity::prelude::*;
+use crate::entity::account;
+use crate::errors::CustomError;
+use crate::errors::CustomError::InternalServerError;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct BroadcastPayload {
@@ -7,6 +10,28 @@ pub struct BroadcastPayload {
     pub account: Account,                 // 账户信息
     pub positions: Vec<Positions>,        // 持仓
     pub history: Vec<History>,            // 历史订单
+}
+
+impl BroadcastPayload {
+    pub fn to_account_entity(&self) -> Result<account::Model, CustomError> {
+
+        let account = account::Model {
+            id: xid::new().to_string(),
+            created_at: None,
+            updated_at: None,
+            deleted_at: None,
+            client_id: self.client_id.clone(),
+            account: self.account.account,
+            leverage: self.account.leverage as i32,
+            server: self.account.server.clone(),
+            company: self.account.company.clone(),
+            balance: Decimal::from_f64_retain(self.account.balance).ok_or(InternalServerError("balance is not decimal".to_owned()))?,
+            profit: Decimal::from_f64_retain(self.account.profit).ok_or(InternalServerError("profit is not decimal".to_owned()))?,
+            margin: Decimal::from_f64_retain(self.account.margin).ok_or(InternalServerError("margin is not decimal".to_owned()))?,
+        };
+
+        Ok(account)
+    }
 }
 
 // Account 账户
@@ -63,14 +88,14 @@ pub enum Direction {
 }
 
 #[derive(Debug, Clone, Copy)]
-enum CacheKey {
+pub enum CacheKey {
     CacheAccount,   // cache 账户信息
     CachePositions, // cache 持仓
     CacheHistory,   // cache 历史持仓
 }
 
 impl CacheKey {
-    fn get_key(self, id: &str) -> String {
+    pub fn get_key(self, id: &str) -> String {
         format!("{:?}_{}", self, id)
     }
 }

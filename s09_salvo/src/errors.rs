@@ -56,3 +56,9 @@ impl From<RedisError> for CustomError {
         CustomError::InternalServerError(e.to_string())
     }
 }
+
+impl From<serde_json::Error>  for CustomError {
+    fn from(e: serde_json::Error) -> Self {
+        CustomError::ParseError(e.to_string())
+    }
+}
