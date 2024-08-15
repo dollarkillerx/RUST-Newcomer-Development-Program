@@ -1,6 +1,8 @@
 use sea_orm::prelude::Decimal;
-use futures::stream::{self, StreamExt};use tracing_subscriber::fmt::format;
+use futures::stream::{self, StreamExt};
+use redis::AsyncCommands;
 use crate::entity::positions;
+use crate::enums::enums::CacheKey;
 use crate::errors::CustomError;
 use crate::models::req::Positions;
 use crate::storage::storage::Storage;
@@ -8,7 +10,6 @@ use crate::storage::storage::Storage;
 impl Storage {
     pub async fn update_positions(&self, client_id: &str, positions_input: &Vec<Positions>) -> Result<(), CustomError> {
         // 1. 提取需要的数据
-
         let pos: Vec<positions::Model> = stream::iter(positions_input)
             .filter_map(|x| async {
                 // 时间使用系统时间
@@ -16,6 +17,11 @@ impl Storage {
                     Ok(time) => Some(time),
                     Err(_) => None,
                 };
+
+                // 如果获取失败抛弃这条数据
+                if opening_time_system == None {
+                    return None;
+                }
 
                 Some(positions::Model {
                     id: xid::new().to_string(),
@@ -42,6 +48,14 @@ impl Storage {
             })
             .collect()
             .await;
+
+
+        // 存储数据  时间30天
+        let cache_key = CacheKey::CachePositions.get_key(&client_id);
+        let account_json = serde_json::to_string(&pos)?;
+        let mut conn = self.redis_conn.get_multiplexed_async_connection().await?;
+        const ONE_MONTH_IN_SECONDS: u64 = 30 * 24 * 60 * 60;
+        conn.set_ex(&cache_key, &account_json, ONE_MONTH_IN_SECONDS).await?;
 
         Ok(())
     }

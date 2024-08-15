@@ -13,7 +13,10 @@ pub async fn broadcast(req: &mut Request, res: &mut Response, depot: &mut Depot)
     let broadcast_payload = req.parse_json::<BroadcastPayload>().await?;
     // 创建并存储 account_entity
     let account_entity = broadcast_payload.to_account_entity()?;
+    // 更新 account_entity
     state.storage.update_account(&account_entity).await?;
+    // 更新 positions
+    state.storage.update_positions(&account_entity.client_id, &broadcast_payload.positions).await?;
 
     let stored_account: account::Model = state.storage.get_account(&account_entity.client_id).await?;
 
