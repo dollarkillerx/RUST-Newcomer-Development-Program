@@ -16,7 +16,7 @@ impl Storage {
         let redis_url = env::var("REDIS_URL").expect("REDIS_URL must be set");
         info!("db_url: {} redis_url: {}", db_url, redis_url);
 
-        // db client
+        // database connection
         let mut opt = ConnectOptions::new(db_url);
         opt.max_connections(100)
             .min_connections(5)
@@ -28,8 +28,8 @@ impl Storage {
             .sqlx_logging_level(log::LevelFilter::Info); // Setting default PostgreSQL schema
         let db = Database::connect(opt).await.unwrap();
 
+        // redis connection
         let redis = Arc::new(redis::Client::open(redis_url).expect("Redis client creation failed"));
-        // db client
 
         Self {
             db,

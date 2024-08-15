@@ -1,3 +1,5 @@
+use serde::{Deserialize, Serialize};
+
 #[derive(Debug, Clone, Copy)]
 pub enum CacheKey {
     CacheAccount,   // cache 账户信息
@@ -17,6 +19,22 @@ impl std::fmt::Display for CacheKey {
             CacheKey::CacheAccount => write!(f, "CacheAccount"),
             CacheKey::CachePositions => write!(f, "CachePositions"),
             CacheKey::CacheHistory => write!(f, "CacheHistory"),
+        }
+    }
+}
+
+// 定义 Direction 枚举
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub enum Direction {
+    Buy,
+    Sell,
+}
+
+impl std::fmt::Display for Direction {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        match self {
+            Direction::Buy => write!(f, "Buy"),
+            Direction::Sell => write!(f, "Sell"),
         }
     }
 }

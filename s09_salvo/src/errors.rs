@@ -1,5 +1,6 @@
 use redis::RedisError;
 use salvo::{prelude::*, Writer};
+use std::time::{SystemTimeError};
 use sea_orm::sqlx;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -60,5 +61,11 @@ impl From<RedisError> for CustomError {
 impl From<serde_json::Error>  for CustomError {
     fn from(e: serde_json::Error) -> Self {
         CustomError::ParseError(e.to_string())
+    }
+}
+
+impl From<SystemTimeError> for CustomError {
+    fn from(e: SystemTimeError) -> Self {
+        CustomError::InternalServerError(e.to_string())
     }
 }

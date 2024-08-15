@@ -1,6 +1,7 @@
 use serde::{Deserialize, Serialize};
 use sea_orm::entity::prelude::*;
 use crate::entity::account;
+use crate::enums::enums::Direction;
 use crate::errors::CustomError;
 use crate::errors::CustomError::InternalServerError;
 
@@ -78,12 +79,5 @@ pub struct History {
     pub price_current: f64,              // 当前价格
     pub symbol: String,                  // 币种
     pub comment: String,                 // 注释
-}
-
-// 定义 Direction 枚举
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub enum Direction {
-    Buy,
-    Sell,
 }
 
