@@ -3,6 +3,8 @@ mod api;
 mod entity;
 mod models;
 mod errors;
+mod storage;
+mod enums;
 
 use std::env;
 use std::sync::Arc;

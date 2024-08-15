@@ -233,7 +233,7 @@ fn stack_heap() {
     // stack 默认行为copy, 但是struct 是move
         // 1. 基础类型
         // 2. tuple and array
-        // 3. struct 与 enum ， 如果属性有String等在heap上的数据类型 会指向堆内存
+        // 3. struct 与 enums ， 如果属性有String等在heap上的数据类型 会指向堆内存
     // heap 默认行为move
         // Box Rc String/Vec
 

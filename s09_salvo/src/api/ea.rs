@@ -1,12 +1,12 @@
-use redis::{AsyncCommands, };
+use redis::{AsyncCommands};
 use salvo::prelude::*;
-use serde_json::json;
 use req::BroadcastPayload;
-use crate::{ AppState};
+use crate::{AppState};
 use crate::entity::account;
+use crate::enums::enums::CacheKey;
 use crate::errors::CustomError;
 use crate::models::req;
-use crate::models::req::CacheKey;
+
 
 #[handler]
 pub async fn broadcast(req: &mut Request, res: &mut Response, depot: &mut Depot) -> Result<(), CustomError> {
@@ -22,6 +22,7 @@ pub async fn broadcast(req: &mut Request, res: &mut Response, depot: &mut Depot)
     // 存储到 redis，有效期为一年
     const ONE_YEAR_IN_SECONDS: u64 = 365 * 24 * 60 * 60;
     conn.set_ex(&cache_key, &account_json, ONE_YEAR_IN_SECONDS).await?;
+
 
     // 从 redis 获取并反序列化 account_entity
     let stored_account: account::Model = conn.get(&cache_key).await

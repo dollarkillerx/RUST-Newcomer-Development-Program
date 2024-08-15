@@ -10,7 +10,7 @@ fn main() {
 // }
 
 // #[derive(Debug)]
-// enum Link<T>
+// enums Link<T>
 //     where T: Debug
 // {
 //     Empty,

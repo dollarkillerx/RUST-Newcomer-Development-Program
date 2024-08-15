@@ -54,14 +54,51 @@ impl MigrationTrait for Migration {
                     .col(ColumnDef::new(Account::Margin).decimal_len(20, 8).not_null())
                     .to_owned(),
             )
-            .await
+            .await?;
+
+        // .col(ColumnDef::new(Positions::Id).uuid().not_null().primary_key())
+        manager
+            .create_table(
+                Table::create()
+                    .table(Positions::Table)
+                    .if_not_exists()
+                    .col(
+                        ColumnDef::new(Positions::Id)
+                            .string_len(255).not_null().primary_key(),
+                    )
+                    .col(ColumnDef::new(Positions::CreatedAt).timestamp_with_time_zone())
+                    .col(ColumnDef::new(Positions::UpdatedAt).timestamp_with_time_zone())
+                    .col(ColumnDef::new(Positions::DeletedAt).timestamp_with_time_zone().null())
+                    .col(ColumnDef::new(Positions::ClientID).string_len(255).not_null())
+                    .col(ColumnDef::new(Positions::OrderID).big_integer().not_null())
+                    .col(ColumnDef::new(Positions::Direction).string_len(255).not_null())
+                    .col(ColumnDef::new(Positions::Symbol).string_len(50).not_null())
+                    .col(ColumnDef::new(Positions::Magic).big_integer().not_null())
+                    .col(ColumnDef::new(Positions::OpenPrice).decimal_len(20, 8).not_null())
+                    .col(ColumnDef::new(Positions::Volume).decimal_len(20, 8).not_null())
+                    .col(ColumnDef::new(Positions::Market).decimal_len(20, 8).not_null())
+                    .col(ColumnDef::new(Positions::Swap).decimal_len(20, 8).not_null())
+                    .col(ColumnDef::new(Positions::Profit).decimal_len(20, 8).not_null())
+                    .col(ColumnDef::new(Positions::Common).string_len(255).not_null())
+                    .col(ColumnDef::new(Positions::OpeningTime).big_integer().not_null())
+                    .col(ColumnDef::new(Positions::ClosingTime).big_integer().not_null())
+                    .col(ColumnDef::new(Positions::CommonInternal).text())
+                    .col(ColumnDef::new(Positions::OpeningTimeSystem).big_integer())
+                    .col(ColumnDef::new(Positions::ClosingTimeSystem).big_integer())
+                    .to_owned(),
+            ).await
     }
 
     async fn down(&self, manager: &SchemaManager) -> Result<(), DbErr> {
         // Replace the sample below with your own migration scripts
-
         manager
             .drop_table(Table::drop().table(TimeSeriesPosition::Table).to_owned())
+            .await?;
+        manager
+            .drop_table(Table::drop().table(Account::Table).to_owned())
+            .await?;
+        manager
+            .drop_table(Table::drop().table(Positions::Table).to_owned())
             .await
     }
 }
@@ -99,4 +136,29 @@ enum Account {
     Balance,
     Profit,
     Margin,
+}
+
+#[derive(DeriveIden)]
+enum Positions {
+    Table,
+    Id,
+    CreatedAt,
+    UpdatedAt,
+    DeletedAt,
+    ClientID,
+    OrderID,
+    Direction,
+    Symbol,
+    Magic,
+    OpenPrice,
+    Volume,
+    Market,
+    Swap,
+    Profit,
+    Common,
+    OpeningTime,
+    ClosingTime,
+    CommonInternal,
+    OpeningTimeSystem,
+    ClosingTimeSystem,
 }
