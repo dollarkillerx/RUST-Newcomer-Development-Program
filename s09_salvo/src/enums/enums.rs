@@ -26,15 +26,15 @@ impl std::fmt::Display for CacheKey {
 // 定义 Direction 枚举
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub enum Direction {
-    Buy,
-    Sell,
+    BUY,
+    SELL,
 }
 
 impl std::fmt::Display for Direction {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         match self {
-            Direction::Buy => write!(f, "Buy"),
-            Direction::Sell => write!(f, "Sell"),
+            Direction::BUY => write!(f, "BUY"),
+            Direction::SELL => write!(f, "SELL"),
         }
     }
 }

@@ -63,9 +63,9 @@ pub struct Positions {
     pub opening_time: i64,               // 开仓时间市商
     pub closing_time: i64,               // 平仓时间市商
 
-    pub common_internal: String,         // 系统内部注释
-    pub opening_time_system: i64,        // 开仓时间系统
-    pub closing_time_system: i64,        // 平仓时间系统
+    pub common_internal: Option<String>,         // 系统内部注释
+    pub opening_time_system: Option<i64>,        // 开仓时间系统
+    pub closing_time_system: Option<i64>,        // 平仓时间系统
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]

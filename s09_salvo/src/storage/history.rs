@@ -3,6 +3,7 @@ use std::time::{SystemTime, UNIX_EPOCH};
 use chrono::Utc;
 use sea_orm::prelude::Decimal;
 use futures::stream::{self, StreamExt};
+use tracing::info;
 use redis::AsyncCommands;
 use crate::entity::{history};
 use crate::enums::enums::CacheKey;
