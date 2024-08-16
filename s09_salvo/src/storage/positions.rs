@@ -1,7 +1,7 @@
 use sea_orm::prelude::Decimal;
 use futures::stream::{self, StreamExt};
 use redis::AsyncCommands;
-use crate::entity::positions;
+use crate::entity::{history, positions};
 use crate::enums::enums::CacheKey;
 use crate::errors::CustomError;
 use crate::models::req::Positions;
@@ -65,7 +65,11 @@ impl Storage {
         let mut conn = self.redis_conn.get_multiplexed_async_connection().await?;
         let account_json: Option<String> = conn.get(&cache_key).await.ok();
         if let Some(account_json) = account_json {
-            let pos: Vec<positions::Model> = serde_json::from_str(&account_json)?;
+            let mut pos: Vec<positions::Model> = serde_json::from_str(&account_json)?;
+            pos.iter_mut().for_each(|x| {
+                x.opening_time = x.opening_time_system.unwrap();
+            });
+
             return Ok(pos);
         }
         Ok(vec![])

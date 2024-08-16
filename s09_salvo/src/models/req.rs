@@ -120,3 +120,16 @@ pub struct History {
     pub comment: String,                 // 注释
 }
 
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct RespResult<T> {
+    pub code: i32,
+    pub msg: String,
+    pub data: T,
+}
+
+impl<T> RespResult<T> {
+    pub fn new(code: i32, msg: String, data: T) -> Self {
+        Self { code, msg, data }
+    }
+}
+

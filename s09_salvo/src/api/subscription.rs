@@ -2,8 +2,7 @@ use salvo::prelude::*;
 use crate::{AppState};
 use crate::enums::enums::Direction;
 use crate::errors::CustomError;
-use sea_orm::prelude::Decimal;
-use crate::models::req::{Positions, SubscriptionPayload, SubscriptionResponse};
+use crate::models::req::{Positions, RespResult, SubscriptionPayload, SubscriptionResponse};
 
 #[handler]
 pub async fn subscription(req: &mut Request, res: &mut Response, depot: &mut Depot) -> Result<(), CustomError> {
@@ -58,8 +57,8 @@ pub async fn subscription(req: &mut Request, res: &mut Response, depot: &mut Dep
             closing_time: x.closing_time,
 
             opening_time_system: x.opening_time_system,
-            closing_time_system: x.closing_time_system,
-            common_internal: x.common_internal.clone(),
+            closing_time_system: Some(0),
+            common_internal: Some("".to_string()),
         }
     }).collect();
     let close_position:Vec<Positions> = close_position.iter().map(|x| {
@@ -87,13 +86,14 @@ pub async fn subscription(req: &mut Request, res: &mut Response, depot: &mut Dep
 
             opening_time_system: x.opening_time_system,
             closing_time_system: x.closing_time_system,
-            common_internal: x.common_internal.clone(),
+            common_internal: Some("".to_string()),
         }
     }).collect();
 
     result.open_positions = open_positions;
     result.close_position = close_position;
 
+    let result = RespResult::new(200, "ok".to_owned(), result);
     res.render(Json(&result));
     Ok(())
 }

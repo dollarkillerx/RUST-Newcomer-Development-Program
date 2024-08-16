@@ -27,3 +27,14 @@ impl Storage {
         Ok(now)
     }
 }
+
+
+#[cfg(test)]
+mod test{
+    use super::*;
+    #[test]
+    fn test_gen_time() {
+        let now = SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs() as i64;
+        println!("{}",now);
+    }
+}
