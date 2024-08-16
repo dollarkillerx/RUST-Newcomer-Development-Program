@@ -1,3 +1,4 @@
+use std::cmp::Ordering;
 use chrono::Utc;
 use futures::{stream, StreamExt};
 use redis::AsyncCommands;
@@ -9,7 +10,7 @@ use crate::errors::CustomError;
 use crate::models::req::{Positions};
 use crate::storage::storage::Storage;
 use sea_orm::entity::prelude::*;
-use sea_orm::TryIntoModel;
+use sea_orm::{QueryOrder, QuerySelect, TryIntoModel};
 
 impl Storage {
     pub async fn statistics(&self, account: account::Model, positions: Vec<Positions>) -> Result<(), CustomError> {
@@ -158,5 +159,21 @@ impl Storage {
             CustomError::ParamError(format!("Database error: {}", err))
         })?;
         Ok(())
+    }
+
+    pub async fn get_time_series_positions(&self, client_id: &str) -> Result<Vec<time_series_position::Model>, CustomError> {
+        let mut positions = time_series_position::Entity::find()
+            .filter(time_series_position::Column::ClientId.eq(client_id))
+            .order_by_desc(time_series_position::Column::CreatedAt) // 初步排序（例如降序）
+            .limit(500)
+            .all(&self.db)
+            .await?;
+
+        // 对结果按 CreatedAt 升序排序
+        positions.sort_by(|a, b| {
+            a.created_at.partial_cmp(&b.created_at).unwrap_or(Ordering::Equal)
+        });
+
+        Ok(positions)
     }
 }
