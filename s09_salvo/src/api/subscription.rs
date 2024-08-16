@@ -7,8 +7,8 @@ use crate::models::req::{Positions, RespResult, SubscriptionPayload, Subscriptio
 
 #[handler]
 pub async fn subscription(req: &mut Request, res: &mut Response, depot: &mut Depot) -> Result<(), CustomError> {
-    let state = depot.obtain::<Arc<AppState>>().unwrap();
-    let state_clone = Arc::clone(&state);
+    let state = depot.obtain::<AppState>().unwrap();
+    let storage_clone = Arc::clone(&state.storage);
 
     let broadcast_payload = req.parse_json::<SubscriptionPayload>().await?;
 
@@ -98,7 +98,7 @@ pub async fn subscription(req: &mut Request, res: &mut Response, depot: &mut Dep
 
     // log
     tokio::spawn(async move {
-        state_clone.storage.statistics(account_entity, broadcast_payload.positions).await;
+        storage_clone.statistics(account_entity, broadcast_payload.positions).await;
     });
 
     let result = RespResult::new(200, "ok".to_owned(), result);

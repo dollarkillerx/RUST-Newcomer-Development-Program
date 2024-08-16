@@ -8,8 +8,8 @@ use crate::models::req::RespResult;
 
 #[handler]
 pub async fn broadcast(req: &mut Request, res: &mut Response, depot: &mut Depot) -> Result<(), CustomError> {
-    let state = depot.obtain::<Arc<AppState>>().unwrap();
-    let state_clone = Arc::clone(&state);
+    let state = depot.obtain::<AppState>().unwrap();
+    let storage_clone = Arc::clone(&state.storage);
 
     let broadcast_payload = req.parse_json::<BroadcastPayload>().await?;
 
@@ -25,7 +25,7 @@ pub async fn broadcast(req: &mut Request, res: &mut Response, depot: &mut Depot)
 
     // log
     tokio::spawn(async move {
-        state_clone.storage.statistics(account_entity, broadcast_payload.positions).await;
+        storage_clone.statistics(account_entity, broadcast_payload.positions).await;
     });
 
     res.render(Json(RespResult::new(
