@@ -42,7 +42,12 @@ pub async fn account_charts(req: &mut Request, res: &mut Response, depot: &mut D
     let account_param = req.param::<String>("account").ok_or(CustomError::ParamError("error".into()))?;
     let state = depot.obtain::<AppState>().unwrap();
 
+    let positions = state.storage.get_time_series_positions(&account_param).await?;
 
-
+    res.render(Json(RespResult::new(
+        200,
+        "ok".to_owned(),
+        positions,
+    )));
     Ok(())
 }
