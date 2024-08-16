@@ -1,6 +1,6 @@
 use chrono::{Datelike, NaiveDate, Utc};
 use salvo::prelude::*;
-use sea_orm::{ColumnTrait, DbErr, EntityTrait, QuerySelect};
+use sea_orm::{ColumnTrait, DatabaseConnection, DbErr, EntityTrait, QuerySelect};
 use sea_orm::prelude::Decimal;
 use serde::Serialize;
 use crate::app_state::AppState;
@@ -35,6 +35,33 @@ struct AccountResponse {
     profits: Vec<ProfitResult>,
 }
 
+async fn get_daily_profit(
+    db: &DatabaseConnection,
+    client_id: &str,
+    date: NaiveDate,
+) -> Result<ProfitResult, DbErr> {
+    // 一天的开始时间和结束时间
+    let start_of_day = date.and_hms(0, 0, 0);
+    let end_of_day = date.and_hms(23, 59, 59);
+
+    let result = time_series_position::Entity::find()
+        .filter(time_series_position::Column::ClientId.eq(client_id))
+        .filter(time_series_position::Column::CreatedAt.between(start_of_day, end_of_day))
+        .select_only()
+        .column_as(time_series_position::Column::Profit.max(), "max_profit")
+        .column_as(time_series_position::Column::Profit.min(), "min_profit")
+        .into_tuple::<(Option<Decimal>, Option<Decimal>)>()
+        .one(db)
+        .await?;
+
+    let (max_profit, min_profit) = result.unwrap_or((None, None));
+
+    Ok(ProfitResult {
+        period: date.to_string(),
+        max_profit: max_profit.unwrap_or(Decimal::ZERO).to_string().parse().unwrap_or(0.0),
+        min_profit: min_profit.unwrap_or(Decimal::ZERO).to_string().parse().unwrap_or(0.0),
+    })
+}
 
 #[handler]
 pub async fn account(req: &mut Request, res: &mut Response, depot: &mut Depot) -> Result<(), CustomError> {
@@ -69,6 +96,7 @@ pub async fn account(req: &mut Request, res: &mut Response, depot: &mut Depot) -
             .one(&state.storage.db)
             .await?;
 
+
         let (max_profit, min_profit) = result.unwrap_or((None, None));
 
         Ok(ProfitResult {
@@ -82,13 +110,12 @@ pub async fn account(req: &mut Request, res: &mut Response, depot: &mut Depot) -
     let today_profit = get_profit(state, &account_param, Some(today)).await?;
     profit_data.push(today_profit);
 
-    // 最近5天每天的最高利润和最低利润
+    // 获取最近5天的利润数据
     for i in 0..5 {
-        let day = now - chrono::Duration::days(i);
-        let daily_profit = get_profit(state, &account_param, Some(day.date())).await?;
+        let date = Utc::now().date_naive() - chrono::Duration::days(i);
+        let daily_profit = get_daily_profit(&state.storage.db, &account_param, date).await?;
         profit_data.push(daily_profit);
     }
-
     // 本月最高利润和最低利润
     let monthly_profit = get_profit(state, &account_param, Some(first_of_month)).await?;
     profit_data.push(monthly_profit);
