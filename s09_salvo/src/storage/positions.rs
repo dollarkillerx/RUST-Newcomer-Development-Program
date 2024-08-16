@@ -49,7 +49,6 @@ impl Storage {
             .collect()
             .await;
 
-
         // 存储数据  时间30天
         let cache_key = CacheKey::CachePositions.get_key(&client_id);
         let account_json = serde_json::to_string(&pos)?;

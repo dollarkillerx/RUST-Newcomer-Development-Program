@@ -10,7 +10,6 @@ pub async fn subscription(req: &mut Request, res: &mut Response, depot: &mut Dep
 
     let broadcast_payload = req.parse_json::<SubscriptionPayload>().await?;
 
-
     // 存储基础information
     // 创建并存储 account_entity
     let account_entity = broadcast_payload.to_account_entity()?;
