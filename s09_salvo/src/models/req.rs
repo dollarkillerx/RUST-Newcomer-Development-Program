@@ -6,7 +6,26 @@ use crate::errors::CustomError;
 use crate::errors::CustomError::InternalServerError;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct SubscriptionResponse {
+    pub client_id: String,                // company.account: exness.10086
+    pub subscription_client_id: String,                 // 订阅账户
+    pub open_positions: Vec<Positions>,        // 开仓订单
+    pub close_position: Vec<Positions>,            // 关仓订单
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct BroadcastPayload {
+    pub client_id: String,                // company.account: exness.10086
+    pub account: Account,                 // 账户信息
+    pub positions: Vec<Positions>,        // 持仓
+    pub history: Vec<History>,            // 历史订单
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct SubscriptionPayload {
+    pub subscription_client_id: String,       // company.account: exness.10086 订阅账户
+    pub strategy_code: String,                // 订阅策略code
+
     pub client_id: String,                // company.account: exness.10086
     pub account: Account,                 // 账户信息
     pub positions: Vec<Positions>,        // 持仓
@@ -15,7 +34,27 @@ pub struct BroadcastPayload {
 
 impl BroadcastPayload {
     pub fn to_account_entity(&self) -> Result<account::Model, CustomError> {
+        let account = account::Model {
+            id: xid::new().to_string(),
+            created_at: None,
+            updated_at: None,
+            deleted_at: None,
+            client_id: self.client_id.clone(),
+            account: self.account.account,
+            leverage: self.account.leverage as i32,
+            server: self.account.server.clone(),
+            company: self.account.company.clone(),
+            balance: Decimal::from_f64_retain(self.account.balance).ok_or(InternalServerError("balance is not decimal".to_owned()))?,
+            profit: Decimal::from_f64_retain(self.account.profit).ok_or(InternalServerError("profit is not decimal".to_owned()))?,
+            margin: Decimal::from_f64_retain(self.account.margin).ok_or(InternalServerError("margin is not decimal".to_owned()))?,
+        };
 
+        Ok(account)
+    }
+}
+
+impl SubscriptionPayload {
+    pub fn to_account_entity(&self) -> Result<account::Model, CustomError> {
         let account = account::Model {
             id: xid::new().to_string(),
             created_at: None,

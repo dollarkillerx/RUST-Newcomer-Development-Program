@@ -92,4 +92,15 @@ impl Storage {
             closing_time_system: Some(SystemTime::now().duration_since(UNIX_EPOCH)?.as_secs() as i64),
         })
     }
+
+    pub async fn get_history(&self, client_id: &str) -> Result<Vec<history::Model>, CustomError> {
+        let cache_key = CacheKey::CacheHistory.get_key(client_id);
+        let mut conn = self.redis_conn.get_multiplexed_async_connection().await?;
+        let account_json: Option<String> = conn.get(&cache_key).await.ok();
+        if let Some(account_json) = account_json {
+            let pos: Vec<history::Model> = serde_json::from_str(&account_json)?;
+            return Ok(pos);
+        }
+        Ok(vec![])
+    }
 }

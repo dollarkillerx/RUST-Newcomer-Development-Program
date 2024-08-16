@@ -59,4 +59,15 @@ impl Storage {
 
         Ok(())
     }
+
+    pub async fn get_positions(&self, client_id: &str) -> Result<Vec<positions::Model>, CustomError> {
+        let cache_key = CacheKey::CachePositions.get_key(&client_id);
+        let mut conn = self.redis_conn.get_multiplexed_async_connection().await?;
+        let account_json: Option<String> = conn.get(&cache_key).await.ok();
+        if let Some(account_json) = account_json {
+            let pos: Vec<positions::Model> = serde_json::from_str(&account_json)?;
+            return Ok(pos);
+        }
+        Ok(vec![])
+    }
 }

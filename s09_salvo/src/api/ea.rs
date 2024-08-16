@@ -20,6 +20,9 @@ pub async fn broadcast(req: &mut Request, res: &mut Response, depot: &mut Depot)
     // 更新 history
     state.storage.update_history(&account_entity.client_id, &broadcast_payload.history).await?;
 
+
+    // log
+
     let stored_account: account::Model = state.storage.get_account(&account_entity.client_id).await?;
 
     res.render(Json(&stored_account));
