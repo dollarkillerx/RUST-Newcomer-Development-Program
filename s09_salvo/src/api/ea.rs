@@ -1,4 +1,3 @@
-use tracing::info;
 use salvo::prelude::*;
 use req::BroadcastPayload;
 use crate::{AppState};
