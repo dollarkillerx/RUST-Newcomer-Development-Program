@@ -1,7 +1,7 @@
 use redis::RedisError;
 use salvo::{prelude::*, Writer};
 use std::time::{SystemTimeError};
-use sea_orm::sqlx;
+use sea_orm::{sqlx, DbErr};
 use crate::models::req::RespResult;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -11,6 +11,7 @@ pub enum CustomError {
     ParseError(String),
     InternalServerError(String),
     ParamError(String),
+    DatabaseError(String),
 }
 
 #[async_trait]
@@ -27,6 +28,7 @@ impl Writer for CustomError {
             CustomError::ParseError(_) => StatusCode::BAD_REQUEST,
             CustomError::InternalServerError(_) => StatusCode::INTERNAL_SERVER_ERROR,
             CustomError::ParamError(_) => StatusCode::BAD_REQUEST,
+            CustomError::DatabaseError(_) => StatusCode::INTERNAL_SERVER_ERROR,
         };
         let error_text = match self.clone() {
             CustomError::NotFound(m) => m,
@@ -34,6 +36,7 @@ impl Writer for CustomError {
             CustomError::ParseError(m) => m,
             CustomError::InternalServerError(m) => m,
             CustomError::ParamError(m) => m,
+            CustomError::DatabaseError(m) => m,
         };
 
         res.status_code(status);
@@ -75,5 +78,11 @@ impl From<serde_json::Error>  for CustomError {
 impl From<SystemTimeError> for CustomError {
     fn from(e: SystemTimeError) -> Self {
         CustomError::InternalServerError(e.to_string())
+    }
+}
+
+impl From<DbErr> for CustomError {
+    fn from(err: DbErr) -> Self {
+        CustomError::DatabaseError(err.to_string())
     }
 }

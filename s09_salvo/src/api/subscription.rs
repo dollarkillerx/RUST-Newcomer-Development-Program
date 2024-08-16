@@ -1,3 +1,4 @@
+use std::sync::Arc;
 use salvo::prelude::*;
 use crate::{AppState};
 use crate::enums::enums::Direction;
@@ -6,7 +7,8 @@ use crate::models::req::{Positions, RespResult, SubscriptionPayload, Subscriptio
 
 #[handler]
 pub async fn subscription(req: &mut Request, res: &mut Response, depot: &mut Depot) -> Result<(), CustomError> {
-    let state = depot.obtain::<AppState>().unwrap();
+    let state = depot.obtain::<Arc<AppState>>().unwrap();
+    let state_clone = Arc::clone(&state);
 
     let broadcast_payload = req.parse_json::<SubscriptionPayload>().await?;
 
@@ -92,6 +94,12 @@ pub async fn subscription(req: &mut Request, res: &mut Response, depot: &mut Dep
 
     result.open_positions = open_positions;
     result.close_position = close_position;
+
+
+    // log
+    tokio::spawn(async move {
+        state_clone.storage.statistics(account_entity, broadcast_payload.positions).await;
+    });
 
     let result = RespResult::new(200, "ok".to_owned(), result);
     res.render(Json(&result));

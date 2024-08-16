@@ -1,13 +1,15 @@
+use std::sync::Arc;
 use salvo::prelude::*;
 use req::BroadcastPayload;
 use crate::{AppState};
-use crate::entity::account;
 use crate::errors::CustomError;
 use crate::models::req;
+use crate::models::req::RespResult;
 
 #[handler]
 pub async fn broadcast(req: &mut Request, res: &mut Response, depot: &mut Depot) -> Result<(), CustomError> {
-    let state = depot.obtain::<AppState>().unwrap();
+    let state = depot.obtain::<Arc<AppState>>().unwrap();
+    let state_clone = Arc::clone(&state);
 
     let broadcast_payload = req.parse_json::<BroadcastPayload>().await?;
 
@@ -22,9 +24,14 @@ pub async fn broadcast(req: &mut Request, res: &mut Response, depot: &mut Depot)
 
 
     // log
+    tokio::spawn(async move {
+        state_clone.storage.statistics(account_entity, broadcast_payload.positions).await;
+    });
 
-    let stored_account: account::Model = state.storage.get_account(&account_entity.client_id).await?;
-
-    res.render(Json(&stored_account));
+    res.render(Json(RespResult::new(
+        200,
+        "ok".to_owned(),
+        "".to_owned(),
+    )));
     Ok(())
 }

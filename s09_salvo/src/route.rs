@@ -1,7 +1,7 @@
 use salvo::prelude::*;
 use salvo::affix;
 use crate::api::accounts::{account, account_charts, accounts};
-use crate::api::ea::broadcast;
+use crate::api::broadcast::broadcast;
 use crate::api::health::health;
 use crate::api::subscription::subscription;
 use crate::AppState;

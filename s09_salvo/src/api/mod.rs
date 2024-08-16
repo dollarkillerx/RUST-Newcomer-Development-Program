@@ -1,4 +1,4 @@
 pub mod health;
-pub mod ea;
+pub mod broadcast;
 pub mod subscription;
 pub mod accounts;
