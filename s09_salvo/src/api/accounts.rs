@@ -1,6 +1,7 @@
 use chrono::{Datelike, NaiveDate, Utc};
 use salvo::prelude::*;
 use sea_orm::{ColumnTrait, DbErr, EntityTrait, QuerySelect};
+use sea_orm::prelude::Decimal;
 use serde::Serialize;
 use crate::app_state::AppState;
 use crate::entity::{positions, time_series_position};
@@ -64,7 +65,7 @@ pub async fn account(req: &mut Request, res: &mut Response, depot: &mut Depot) -
             .select_only()
             .column_as(time_series_position::Column::Profit.max(), "max_profit")
             .column_as(time_series_position::Column::Profit.min(), "min_profit")
-            .into_tuple::<(Option<f64>, Option<f64>)>()
+            .into_tuple::<(Option<Decimal>, Option<Decimal>)>()
             .one(&state.storage.db)
             .await?;
 
@@ -72,8 +73,8 @@ pub async fn account(req: &mut Request, res: &mut Response, depot: &mut Depot) -
 
         Ok(ProfitResult {
             period: date_filter.map_or("all_time".to_string(), |d| d.to_string()),
-            max_profit: max_profit.unwrap_or(0.0),
-            min_profit: min_profit.unwrap_or(0.0),
+            max_profit: max_profit.unwrap_or(Decimal::ZERO).to_string().parse().unwrap_or(0.0),
+            min_profit: min_profit.unwrap_or(Decimal::ZERO).to_string().parse().unwrap_or(0.0),
         })
     }
 
