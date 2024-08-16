@@ -1,8 +1,11 @@
 use salvo::prelude::*;
 use crate::{AppState};
+use crate::enums::enums::Direction;
 use crate::errors::CustomError;
+use sea_orm::prelude::Decimal;
 use crate::models::req::{Positions, SubscriptionPayload, SubscriptionResponse};
 
+#[handler]
 pub async fn subscription(req: &mut Request, res: &mut Response, depot: &mut Depot) -> Result<(), CustomError> {
     let state = depot.obtain::<AppState>().unwrap();
 
@@ -31,15 +34,62 @@ pub async fn subscription(req: &mut Request, res: &mut Response, depot: &mut Dep
     let close_position = state.storage.get_history(&broadcast_payload.subscription_client_id).await?;
 
     let open_positions:Vec<Positions> = open_positions.iter().map(|x| {
+        let mut direction = x.direction.clone();
+        if (&broadcast_payload).strategy_code == "Reverse" {
+            if direction == Direction::BUY.to_string() {
+                direction = Direction::SELL.to_string();
+            }else{
+                direction = Direction::BUY.to_string();
+            }
+        }
+
         Positions {
             order_id: x.order_id.clone(),
-            direction: x.direction.clone(),
-            price: x.price.clone(),
-            volume: x.volume.clone(),
-            created_at: x.created_at.clone(),
+            direction: direction.into(),
+            symbol: x.symbol.clone(),
+            magic: x.magic,
+            open_price: x.open_price.to_string().parse().unwrap(),
+            volume: x.volume.to_string().parse().unwrap(),
+            market: x.market.to_string().parse().unwrap(),
+            swap: x.swap.to_string().parse().unwrap(),
+            profit: x.profit.to_string().parse().unwrap(),
+            common: x.common.clone(),
+            opening_time: x.opening_time,
+            closing_time: x.closing_time,
+
+            opening_time_system: x.opening_time_system,
+            closing_time_system: x.closing_time_system,
+            common_internal: x.common_internal.clone(),
         }
     }).collect();
-    let close_position:Vec<Positions> = close_position.iter().map(|x| x).collect();
+    let close_position:Vec<Positions> = close_position.iter().map(|x| {
+        let mut direction = x.direction.clone();
+        if (&broadcast_payload).strategy_code == "Reverse" {
+            if direction == Direction::BUY.to_string() {
+                direction = Direction::SELL.to_string();
+            }else{
+                direction = Direction::BUY.to_string();
+            }
+        }
+        Positions {
+            order_id: x.order_id.clone(),
+            direction: direction.into(),
+            symbol: x.symbol.clone(),
+            magic: x.magic,
+            open_price: x.open_price.to_string().parse().unwrap(),
+            volume: x.volume.to_string().parse().unwrap(),
+            market: x.market.to_string().parse().unwrap(),
+            swap: x.swap.to_string().parse().unwrap(),
+            profit: x.profit.to_string().parse().unwrap(),
+            common: x.common.clone(),
+            opening_time: x.opening_time,
+            closing_time: x.closing_time,
+
+            opening_time_system: x.opening_time_system,
+            closing_time_system: x.closing_time_system,
+            common_internal: x.common_internal.clone(),
+        }
+    }).collect();
 
     result.open_positions = open_positions;
     result.close_position = close_position;
