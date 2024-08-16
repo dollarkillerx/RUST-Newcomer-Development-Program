@@ -60,6 +60,7 @@ pub async fn subscription(req: &mut Request, res: &mut Response, depot: &mut Dep
             common_internal: Some("".to_string()),
         }
     }).collect();
+
     let close_position:Vec<Positions> = close_position.iter().map(|x| {
         let mut direction = x.direction.clone();
         if (&broadcast_payload).strategy_code == "Reverse" {

@@ -2,6 +2,7 @@ use redis::RedisError;
 use salvo::{prelude::*, Writer};
 use std::time::{SystemTimeError};
 use sea_orm::sqlx;
+use crate::models::req::RespResult;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum CustomError {
@@ -9,6 +10,7 @@ pub enum CustomError {
     TeraError(String),
     ParseError(String),
     InternalServerError(String),
+    ParamError(String),
 }
 
 #[async_trait]
@@ -24,16 +26,22 @@ impl Writer for CustomError {
             CustomError::TeraError(_) => StatusCode::INTERNAL_SERVER_ERROR,
             CustomError::ParseError(_) => StatusCode::BAD_REQUEST,
             CustomError::InternalServerError(_) => StatusCode::INTERNAL_SERVER_ERROR,
+            CustomError::ParamError(_) => StatusCode::BAD_REQUEST,
         };
         let error_text = match self.clone() {
             CustomError::NotFound(m) => m,
             CustomError::TeraError(m) => m,
             CustomError::ParseError(m) => m,
             CustomError::InternalServerError(m) => m,
+            CustomError::ParamError(m) => m,
         };
 
         res.status_code(status);
-        res.render(Json(&error_text));
+        res.render(Json(RespResult::new(
+            status.as_u16() as i32,
+            error_text,
+            "".to_owned(),
+        )));
     }
 }
 

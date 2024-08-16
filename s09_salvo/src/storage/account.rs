@@ -25,4 +25,36 @@ impl Storage {
             .and_then(|json: String| serde_json::from_str(&json).map_err(CustomError::from))?;
         Ok(model)
     }
+
+    pub async fn get_accounts(&self) -> Result<Vec<account::Model>, CustomError> {
+        let mut conn = self.redis_conn.get_multiplexed_async_connection().await?;
+        let mut position_keys = Vec::new();
+        let prefix = CacheKey::CacheAccount.get_key("");
+        let mut cursor = 0;
+
+        loop {
+            let mut cmd = redis::cmd("SCAN");
+            cmd.arg(cursor).arg("MATCH").arg(format!("{}*", prefix)).arg("COUNT").arg(10);
+            let (cursor_new, keys): (u64, Vec<String>) = cmd.query_async(&mut conn).await?;
+
+            position_keys.extend(keys);
+            cursor = cursor_new;
+            if cursor == 0 {
+                break;
+            }
+        }
+
+        let mut result = Vec::new();
+        for key in position_keys {
+            let sr: Option<String> = conn.get(&key).await?;
+            if let Some(sr) = sr {
+                match serde_json::from_str::<account::Model>(&sr) {
+                    Ok(ac) => result.push(ac),
+                    Err(_) => continue, // Skip invalid JSON
+                }
+            }
+        }
+
+        Ok(result)
+    }
 }

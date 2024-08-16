@@ -3,3 +3,4 @@ mod account;
 mod positions;
 mod utils;
 mod history;
+mod statistics;

@@ -1,5 +1,6 @@
 use salvo::prelude::*;
 use salvo::affix;
+use crate::api::accounts::{account, account_charts, accounts};
 use crate::api::ea::broadcast;
 use crate::api::health::health;
 use crate::api::subscription::subscription;
@@ -23,13 +24,13 @@ pub fn route(app_state: AppState) -> Router {
     ).push(
         Router::with_path("/api")
             .push(Router::with_path("/accounts").push(
-                Router::new().get(broadcast)
+                Router::new().get(accounts)
             ))
             .push(Router::with_path("/account/<account>").push(
-                Router::new().get(broadcast)
+                Router::new().get(account)
             ))
             .push(Router::with_path("/account/charts/<account>").push(
-                Router::new().get(broadcast)
+                Router::new().get(account_charts)
             )),
     );
 
