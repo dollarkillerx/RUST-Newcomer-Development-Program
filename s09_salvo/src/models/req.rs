@@ -70,11 +70,11 @@ pub struct Positions {
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct History {
-    pub ticket: i32,                     // 票据
-    pub time_setup: i32,                 // 设置时间
+    pub ticket: i64,                     // 票据
+    pub time_setup: i64,                 // 设置时间
     pub r#type: String,                  // 类型 ("type" 是关键字, 所以使用 r#type)
-    pub magic: i32,                      // 魔术手
-    pub position_id: i32,                // 持仓ID
+    pub magic: i64,                      // 魔术手
+    pub position_id: i64,                // 持仓ID
     pub volume_initial: f64,             // 初始数量
     pub price_current: f64,              // 当前价格
     pub symbol: String,                  // 币种

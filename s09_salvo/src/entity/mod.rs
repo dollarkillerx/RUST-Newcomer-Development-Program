@@ -3,5 +3,6 @@
 pub mod prelude;
 
 pub mod account;
+pub mod history;
 pub mod positions;
 pub mod time_series_position;

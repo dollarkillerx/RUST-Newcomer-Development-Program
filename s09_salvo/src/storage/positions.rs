@@ -42,7 +42,7 @@ impl Storage {
                     opening_time: x.opening_time,
                     closing_time: x.closing_time,
                     common_internal: Option::from(x.common_internal.clone()),
-                    opening_time_system: opening_time_system,
+                    opening_time_system,
                     closing_time_system: Option::from(x.closing_time_system),
                 })
             })

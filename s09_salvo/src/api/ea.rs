@@ -17,6 +17,8 @@ pub async fn broadcast(req: &mut Request, res: &mut Response, depot: &mut Depot)
     state.storage.update_account(&account_entity).await?;
     // 更新 positions
     state.storage.update_positions(&account_entity.client_id, &broadcast_payload.positions).await?;
+    // 更新 history
+    state.storage.update_history(&account_entity.client_id, &broadcast_payload.history).await?;
 
     let stored_account: account::Model = state.storage.get_account(&account_entity.client_id).await?;
 

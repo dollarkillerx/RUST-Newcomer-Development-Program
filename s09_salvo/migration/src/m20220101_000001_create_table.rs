@@ -86,6 +86,37 @@ impl MigrationTrait for Migration {
                     .col(ColumnDef::new(Positions::OpeningTimeSystem).big_integer())
                     .col(ColumnDef::new(Positions::ClosingTimeSystem).big_integer())
                     .to_owned(),
+            ).await?;
+
+        manager
+            .create_table(
+                Table::create()
+                    .table(History::Table)
+                    .if_not_exists()
+                    .col(
+                        ColumnDef::new(History::Id)
+                            .string_len(255).not_null().primary_key(),
+                    )
+                    .col(ColumnDef::new(History::CreatedAt).timestamp_with_time_zone())
+                    .col(ColumnDef::new(History::UpdatedAt).timestamp_with_time_zone())
+                    .col(ColumnDef::new(History::DeletedAt).timestamp_with_time_zone().null())
+                    .col(ColumnDef::new(History::ClientID).string_len(255).not_null())
+                    .col(ColumnDef::new(History::OrderID).big_integer().not_null())
+                    .col(ColumnDef::new(History::Direction).string_len(255).not_null())
+                    .col(ColumnDef::new(History::Symbol).string_len(50).not_null())
+                    .col(ColumnDef::new(History::Magic).big_integer().not_null())
+                    .col(ColumnDef::new(History::OpenPrice).decimal_len(20, 8).not_null())
+                    .col(ColumnDef::new(History::Volume).decimal_len(20, 8).not_null())
+                    .col(ColumnDef::new(History::Market).decimal_len(20, 8).not_null())
+                    .col(ColumnDef::new(History::Swap).decimal_len(20, 8).not_null())
+                    .col(ColumnDef::new(History::Profit).decimal_len(20, 8).not_null())
+                    .col(ColumnDef::new(History::Common).string_len(255).not_null())
+                    .col(ColumnDef::new(History::OpeningTime).big_integer().not_null())
+                    .col(ColumnDef::new(History::ClosingTime).big_integer().not_null())
+                    .col(ColumnDef::new(History::CommonInternal).text())
+                    .col(ColumnDef::new(History::OpeningTimeSystem).big_integer())
+                    .col(ColumnDef::new(History::ClosingTimeSystem).big_integer())
+                    .to_owned(),
             ).await
     }
 
@@ -99,6 +130,9 @@ impl MigrationTrait for Migration {
             .await?;
         manager
             .drop_table(Table::drop().table(Positions::Table).to_owned())
+            .await?;
+        manager
+            .drop_table(Table::drop().table(History::Table).to_owned())
             .await
     }
 }
@@ -140,6 +174,31 @@ enum Account {
 
 #[derive(DeriveIden)]
 enum Positions {
+    Table,
+    Id,
+    CreatedAt,
+    UpdatedAt,
+    DeletedAt,
+    ClientID,
+    OrderID,
+    Direction,
+    Symbol,
+    Magic,
+    OpenPrice,
+    Volume,
+    Market,
+    Swap,
+    Profit,
+    Common,
+    OpeningTime,
+    ClosingTime,
+    CommonInternal,
+    OpeningTimeSystem,
+    ClosingTimeSystem,
+}
+
+#[derive(DeriveIden)]
+enum History {
     Table,
     Id,
     CreatedAt,
