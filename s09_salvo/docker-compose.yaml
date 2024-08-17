@@ -5,6 +5,9 @@ services:
     container_name: ru_system
     restart: always
     ports:
-      - "8182:8182"
-    volumes:
-      - ./configs/:/app/configs
+      - "8183:5800"
+    environment:
+      - DATABASE_URL=postgres://github:github@github.tailbd724f.ts.net:5532/ru_system
+      - REDIS_URL=redis://github.tailbd724f.ts.net:6379/2
+#    volumes:
+#      - ./s09_salvo:/app

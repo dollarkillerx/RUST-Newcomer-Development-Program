@@ -14,7 +14,7 @@ use crate::storage::storage::Storage;
 
 #[tokio::main]
 async fn main() {
-    dotenvy::dotenv().unwrap(); // 读取 .env
+    // dotenvy::dotenv().unwrap(); // 读取 .env
     tracing_subscriber::fmt().init();
     let state = AppState { storage: Arc::new(Storage::default().await) };
     let acceptor = TcpListener::new("127.0.0.1:5800").bind().await;
