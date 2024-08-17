@@ -1,0 +1,10 @@
+version: "3.3"
+services:
+  ru_system:
+    image: github.tailbd724f.ts.net:5000/ru_system:1.0.0
+    container_name: ru_system
+    restart: always
+    ports:
+      - "8182:8182"
+    volumes:
+      - ./configs/:/app/configs
