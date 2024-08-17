@@ -22,3 +22,8 @@ async-trait = "0.1.81"
 redis = { version = "0.26.1", features = ["tokio-comp"] }
 xid = "1.1.1"
 futures = "0.3.30"
+
+
+[[bin]]
+name = "myapp"
+path = "src/main.rs"
