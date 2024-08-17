@@ -4,3 +4,4 @@ mod positions;
 mod utils;
 mod history;
 mod statistics;
+mod close_signal;

@@ -7,6 +7,7 @@ pub enum CacheKey {
     CacheAccount,   // cache 账户信息
     CachePositions, // cache 持仓
     CacheHistory,   // cache 历史持仓
+    CacheCloseSignal,   // cache 关闭信号
 }
 
 impl CacheKey {
@@ -21,6 +22,7 @@ impl std::fmt::Display for CacheKey {
             CacheKey::CacheAccount => write!(f, "CacheAccount"),
             CacheKey::CachePositions => write!(f, "CachePositions"),
             CacheKey::CacheHistory => write!(f, "CacheHistory"),
+            CacheKey::CacheCloseSignal => write!(f, "CacheCloseSignal"),
         }
     }
 }
