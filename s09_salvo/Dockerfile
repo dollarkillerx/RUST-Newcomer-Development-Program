@@ -14,3 +14,5 @@ FROM gcr.io/distroless/static
 COPY --from=builder /myapp /
 
 ENTRYPOINT ["/myapp"]
+
+# https://qiita.com/ChanTsune/items/5c208b6547ca0e123a88
