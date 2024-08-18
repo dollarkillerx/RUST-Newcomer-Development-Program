@@ -6,7 +6,7 @@ RUN rustup target add x86_64-unknown-linux-musl
 WORKDIR /work
 COPY . .
 
-RUN cargo build --release --target x86_64-unknown-linux-musl
+RUN CARGO_BUILD_JOBS=$(nproc) cargo build --release --target x86_64-unknown-linux-musl
 RUN strip /work/target/x86_64-unknown-linux-musl/release/myapp -o /myapp
 
 FROM gcr.io/distroless/static

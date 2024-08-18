@@ -1,13 +1,13 @@
-version: "3.3"
 services:
   ru_system:
     image: github.tailbd724f.ts.net:5000/ru_system:1.0.0
     container_name: ru_system
     restart: always
     ports:
-      - "8183:5800"
+      - "8183:8183"
     environment:
       - DATABASE_URL=postgres://github:github@github.tailbd724f.ts.net:5532/ru_system
       - REDIS_URL=redis://github.tailbd724f.ts.net:6379/2
+      - ADDRESS=0.0.0.0:8183
 #    volumes:
 #      - ./s09_salvo:/app
