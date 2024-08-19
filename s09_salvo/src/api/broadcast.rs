@@ -25,7 +25,12 @@ pub async fn broadcast(req: &mut Request, res: &mut Response, depot: &mut Depot)
 
     // log
     tokio::spawn(async move {
-        storage_clone.statistics(account_entity, broadcast_payload.positions).await;
+        match storage_clone.statistics(account_entity, broadcast_payload.positions).await {
+            Ok(_) => {},
+            Err(err) => {
+                println!("{:?}", err);
+            },
+        }
     });
 
     res.render(Json(RespResult::new(

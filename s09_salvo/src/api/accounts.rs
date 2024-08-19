@@ -14,6 +14,8 @@ pub async fn accounts(req: &mut Request, res: &mut Response, depot: &mut Depot) 
     let state = depot.obtain::<AppState>().unwrap();
     let accts = state.storage.get_accounts().await?;
 
+
+
     res.render(Json(RespResult::new(
         200,
         "ok".to_owned(),

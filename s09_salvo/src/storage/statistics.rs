@@ -17,7 +17,6 @@ impl Storage {
         if positions.len() == 0 {
             return Ok(());
         }
-
         // 1. 获取够着model Positions
         let pos: Vec<positions::Model> = stream::iter(&positions)
             .filter_map(|x| async {
@@ -100,7 +99,7 @@ impl Storage {
 
         let last_time_series_position = last_time_series_position.unwrap();
 
-        let pos2: Vec<positions::Model> = serde_json::from_str(last_time_series_position.payload.as_str())?;
+        let pos2: Vec<Positions> = serde_json::from_str(last_time_series_position.payload.as_str())?;
         pos2.iter().for_each(|x| {
             before.push_str(format!("{}", x.order_id).as_str());
         });
